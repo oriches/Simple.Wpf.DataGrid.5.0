@@ -331,15 +331,15 @@ namespace Simple.Wpf.DataGrid.Tests.Services
 
             // ASSERT
             Assert.That(changedIdentifier, Is.EqualTo(identifier));
-            Assert.That(settings.Get<IEnumerable<string>>(Constants.UI.Settings.Names.Columns)
+            Assert.That(settings.Get<string[]>(Constants.UI.Settings.Names.Columns)
                     .SequenceEqual(columns),
                 Is.True);
             Assert.That(
-                settings.Get<IEnumerable<string>>(Constants.UI.Settings.Names.VisibleColumns)
+                settings.Get<string[]>(Constants.UI.Settings.Names.VisibleColumns)
                     .SequenceEqual(columns),
                 Is.False);
             Assert.That(
-                settings.Get<IEnumerable<string>>(Constants.UI.Settings.Names.VisibleColumns)
+                settings.Get<string[]>(Constants.UI.Settings.Names.VisibleColumns)
                     .SequenceEqual(new[] {"Col1", "Col2"}), Is.True);
         }
     }

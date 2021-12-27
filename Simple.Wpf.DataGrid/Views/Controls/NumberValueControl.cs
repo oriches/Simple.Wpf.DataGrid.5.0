@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Simple.Wpf.DataGrid.Extensions;
@@ -115,6 +116,58 @@ namespace Simple.Wpf.DataGrid.Views.Controls
                 true);
 
             if (!transitioned) throw new Exception("Failed to transition...");
+        }
+    }
+
+    public sealed class DataGridTemplateColumnEx : DataGridTemplateColumn
+    {
+        protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
+        {
+            return LoadTemplateContent(false, dataItem, cell);
+        }
+
+        protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem)
+        {
+            return LoadTemplateContent(true, dataItem, cell);
+        }
+
+        private void ChooseCellTemplateAndSelector(bool isEditing, out DataTemplate template, out DataTemplateSelector templateSelector)
+        {
+            template = null;
+            templateSelector = null;
+
+            if (isEditing)
+            {
+                template = CellEditingTemplate;
+                templateSelector = CellEditingTemplateSelector;
+            }
+
+            if (template == null && templateSelector == null)
+            {
+                template = CellTemplate;
+                templateSelector = CellTemplateSelector;
+            }
+        }
+
+        private FrameworkElement LoadTemplateContent(bool isEditing, object dataItem, DataGridCell cell)
+        {
+            ChooseCellTemplateAndSelector(isEditing, out var template, out var templateSelector);
+            if (template != null || templateSelector != null)
+            {
+                var contentPresenter = new ContentPresenter();
+
+                var binding = new Binding
+                {
+                    FallbackValue = null
+                };
+
+                BindingOperations.SetBinding(contentPresenter, ContentPresenter.ContentProperty, binding);
+                contentPresenter.ContentTemplate = template;
+                contentPresenter.ContentTemplateSelector = templateSelector;
+                return contentPresenter;
+            }
+
+            return null;
         }
     }
 }

@@ -14,8 +14,8 @@ namespace Simple.Wpf.DataGrid.Services
     {
         private readonly Subject<Message> _show;
 
-        private readonly object _sync = new object();
-        private readonly Queue<Message> _waitingMessages = new Queue<Message>();
+        private readonly object _sync = new();
+        private readonly Queue<Message> _waitingMessages = new();
 
         public MessageService()
         {

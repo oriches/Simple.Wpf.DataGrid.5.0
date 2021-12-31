@@ -18,7 +18,7 @@ namespace Simple.Wpf.DataGrid.Views.Behaviors
 
         public bool IsScrolling
         {
-            get => (bool) GetValue(IsScrollingProperty);
+            get => (bool)GetValue(IsScrollingProperty);
             set => SetValue(IsScrollingProperty, value);
         }
 
@@ -38,7 +38,7 @@ namespace Simple.Wpf.DataGrid.Views.Behaviors
 
         private void HandleLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
-            _timer = new DispatcherTimer {Interval = Constants.UI.Grids.ScrollingThrottle};
+            _timer = new DispatcherTimer { Interval = Constants.UI.Grids.ScrollingThrottle };
             _timer.Tick += HandleTimerTick;
 
             var scrollViewer = AssociatedObject.FindDescendant<ScrollViewer>();

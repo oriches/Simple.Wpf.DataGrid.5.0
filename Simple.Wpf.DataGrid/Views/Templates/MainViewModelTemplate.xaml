@@ -4,7 +4,8 @@
                              xmlns:vm="clr-namespace:Simple.Wpf.DataGrid.ViewModels"
                              xmlns:rd="clr-namespace:Simple.Wpf.DataGrid.Views.ResourceDictionaries"
                              xmlns:b="clr-namespace:Simple.Wpf.DataGrid.Views.Behaviors"
-                             xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors">
+                             xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+                             xmlns:s="clr-namespace:System;assembly=System.Runtime">
 
     <rd:SharedResourceDictionary.MergedDictionaries>
         <rd:SharedResourceDictionary Source="../Styles/ButtonStyles.xaml" />
@@ -58,18 +59,18 @@
                                 Style="{StaticResource ResourceButtonStyle}" />
 
                         <TextBlock
-                            Text="{Binding TotalNumberOfRows, IsAsync=True, StringFormat=Total Rows Count: {0:N0}}"
+                            Text="{Binding TotalNumberOfRows, IsAsync=True, StringFormat=Total Rows Count: {0:N0}, FallbackValue={x:Static s:String.Empty}}"
                             Style="{StaticResource RowTextBlockStyle}" />
 
                         <TextBlock
-                            Text="{Binding TotalNumberOfValues, IsAsync=True, StringFormat=Total Value Count: {0:N0}}"
+                            Text="{Binding TotalNumberOfValues, IsAsync=True, StringFormat=Total Value Count: {0:N0}, FallbackValue={x:Static s:String.Empty}}"
                             Style="{StaticResource RowTextBlockStyle}" />
 
                         <TextBlock Style="{StaticResource RowTextBlockStyle}"
                                    Text="Updates per Second: " />
 
                         <TextBlock Style="{StaticResource RowTextBlockStyle}"
-                                   Text="{Binding UpdatesPerSecond, IsAsync=True, StringFormat={}{0:N0}}" />
+                                   Text="{Binding UpdatesPerSecond, IsAsync=True, StringFormat={}{0:N0}, FallbackValue={x:Static s:String.Empty}}" />
 
                     </StackPanel>
 
@@ -127,7 +128,7 @@
                     BorderThickness="1"
                     BorderBrush="{StaticResource MahApps.Brushes.Accent}">
 
-                <ContentPresenter Content="{Binding Path=Diagnostics}" />
+                <ContentPresenter Content="{Binding Path=Diagnostics, FallbackValue={x:Null}}" />
 
             </Border>
 

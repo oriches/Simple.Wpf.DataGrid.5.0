@@ -37,7 +37,7 @@ namespace Simple.Wpf.DataGrid.Views.Controls
                 _scrollViewer.PreviewMouseDown += HandlePreviewMouseDown;
                 _scrollViewer.PreviewMouseUp += HandlePreviewMouseUp;
 
-                _scrollWheelTimer = new DispatcherTimer {Interval = Constants.UI.Grids.ScrollingThrottle};
+                _scrollWheelTimer = new DispatcherTimer { Interval = Constants.UI.Grids.ScrollingThrottle };
                 _scrollWheelTimer.Tick += HandleScrollWheelTimerTick;
 
                 _scrollViewer.PreviewMouseWheel += HandlePreviewMouseWheel;
@@ -123,15 +123,16 @@ namespace Simple.Wpf.DataGrid.Views.Controls
     {
         protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
         {
-            return LoadTemplateContent(false, dataItem, cell);
+            return LoadTemplateContent(false);
         }
 
         protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem)
         {
-            return LoadTemplateContent(true, dataItem, cell);
+            return LoadTemplateContent(true);
         }
 
-        private void ChooseCellTemplateAndSelector(bool isEditing, out DataTemplate template, out DataTemplateSelector templateSelector)
+        private void ChooseCellTemplateAndSelector(bool isEditing, out DataTemplate template,
+            out DataTemplateSelector templateSelector)
         {
             template = null;
             templateSelector = null;
@@ -149,7 +150,7 @@ namespace Simple.Wpf.DataGrid.Views.Controls
             }
         }
 
-        private FrameworkElement LoadTemplateContent(bool isEditing, object dataItem, DataGridCell cell)
+        private FrameworkElement LoadTemplateContent(bool isEditing)
         {
             ChooseCellTemplateAndSelector(isEditing, out var template, out var templateSelector);
             if (template != null || templateSelector != null)
@@ -158,7 +159,7 @@ namespace Simple.Wpf.DataGrid.Views.Controls
 
                 var binding = new Binding
                 {
-                    FallbackValue = null
+                    FallbackValue = string.Empty, IsAsync = true
                 };
 
                 BindingOperations.SetBinding(contentPresenter, ContentPresenter.ContentProperty, binding);

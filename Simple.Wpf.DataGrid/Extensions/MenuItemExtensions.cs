@@ -8,7 +8,7 @@ namespace Simple.Wpf.DataGrid.Extensions
     {
         public static DataGridColumnHeader GetHeader(this MenuItem menuItem)
         {
-            return ((ContextMenu) menuItem.Parent)
+            return ((ContextMenu)menuItem.Parent)
                 .PlacementTarget
                 .FindAncestor<DataGridColumnHeader>();
         }
@@ -23,7 +23,7 @@ namespace Simple.Wpf.DataGrid.Extensions
         {
             var column = menuItem.GetColumn();
 
-            return (System.Windows.Controls.DataGrid) column.GetType()
+            return (System.Windows.Controls.DataGrid)column.GetType()
                 .GetProperty("DataGridOwner", BindingFlags.Instance | BindingFlags.NonPublic)
                 .GetValue(column, null);
         }

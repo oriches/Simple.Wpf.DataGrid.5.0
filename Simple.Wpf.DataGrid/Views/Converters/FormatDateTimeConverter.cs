@@ -15,7 +15,11 @@ namespace Simple.Wpf.DataGrid.Views.Converters
 
             try
             {
-                return string.Format(DateTimeHelper.DetermineFormat((DateTime) value), value);
+                if (value is string stringValue)
+                    if (string.IsNullOrWhiteSpace(stringValue))
+                        return null;
+
+                return string.Format(DateTimeHelper.DetermineFormat((DateTime)value), value);
             }
             catch (Exception)
             {

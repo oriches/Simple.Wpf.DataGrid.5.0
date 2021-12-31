@@ -35,7 +35,7 @@ namespace Simple.Wpf.DataGrid.Extensions
         {
             if (UnitsMultiplier.TryGetValue(units, out var unitsMultiplier)) return unitsMultiplier;
 
-            unitsMultiplier = 1 / Convert.ToDecimal((int) units);
+            unitsMultiplier = 1 / Convert.ToDecimal((int)units);
 
             UnitsMultiplier.Add(units, unitsMultiplier);
             return unitsMultiplier;
@@ -67,7 +67,7 @@ namespace Simple.Wpf.DataGrid.Extensions
             var memInfo = MemoryUnitsType.GetMember(unitAsString);
             var attributes = memInfo[0]
                 .GetCustomAttributes(typeof(DescriptionAttribute), false);
-            unitsString = ((DescriptionAttribute) attributes[0]).Description;
+            unitsString = ((DescriptionAttribute)attributes[0]).Description;
 
             UnitsAsString.Add(units, unitsString);
             return unitsString;

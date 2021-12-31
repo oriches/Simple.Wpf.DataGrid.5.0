@@ -17,8 +17,8 @@ namespace Simple.Wpf.DataGrid.Tests.ViewModels
             _columnService = new Mock<IColumnsService>();
 
             _identifier = "Grid.1";
-            _visibleColumns = new[] {"Col1", "Col2", "Col3", "Col4", "Col5"};
-            _hiddenColumns = new[] {"Col6", "Col7", "Col8", "Col9", "Col10"};
+            _visibleColumns = new[] { "Col1", "Col2", "Col3", "Col4", "Col5" };
+            _hiddenColumns = new[] { "Col6", "Col7", "Col8", "Col9", "Col10" };
 
             _columnService.Setup(x => x.Initialised)
                 .Returns(Observable.Never<string>());

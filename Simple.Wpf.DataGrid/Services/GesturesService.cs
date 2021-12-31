@@ -17,7 +17,7 @@ namespace Simple.Wpf.DataGrid.Services
         public GesturesService()
         {
             using (Duration.Measure(Logger, "Constructor - " + GetType()
-                .Name))
+                       .Name))
             {
                 _timer = new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.ApplicationIdle, TimerCallback,
                     Application.Current.Dispatcher);

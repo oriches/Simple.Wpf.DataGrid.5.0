@@ -8,7 +8,7 @@ namespace Simple.Wpf.DataGrid.Services
     [Target("LimitedMemory")]
     public sealed class LimitedMemoryTarget : TargetWithLayout
     {
-        private readonly Queue<string> _logs = new Queue<string>();
+        private readonly Queue<string> _logs = new();
 
         public LimitedMemoryTarget()
         {

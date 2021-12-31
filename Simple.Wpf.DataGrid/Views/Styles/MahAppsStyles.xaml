@@ -1,0 +1,40 @@
+﻿<rd:SharedResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:rd="clr-namespace:Simple.Wpf.DataGrid.Views.ResourceDictionaries">
+
+    <Style x:Key="MahApps.Styles.MenuItem" TargetType="{x:Type MenuItem}">
+        <Setter Property="Control.Background" Value="{DynamicResource MahApps.Brushes.MenuItem.Background}"/>
+        <Setter Property="Control.HorizontalContentAlignment"
+            Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, FallbackValue={x:Static HorizontalAlignment.Stretch}}"/>
+        <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="Control.Template"
+            Value="{DynamicResource {ComponentResourceKey ResourceId=SubmenuItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
+        <Setter Property="Control.VerticalContentAlignment"
+            Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, FallbackValue={x:Static VerticalAlignment.Stretch}}"/>
+        <Style.Triggers>
+            <Trigger Property="MenuItem.Role" Value="TopLevelHeader">
+                <Setter Property="Control.Padding" Value="7 5 8 6"/>
+                <Setter Property="Control.Template"
+                Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
+            </Trigger>
+            <Trigger Property="MenuItem.Role" Value="TopLevelItem">
+                <Setter Property="Control.Padding" Value="7 5 8 6"/>
+                <Setter Property="Control.Template"
+                Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
+            </Trigger>
+            <Trigger Property="MenuItem.Role" Value="SubmenuHeader">
+                <Setter Property="Control.Padding" Value="2 6 2 6"/>
+                <Setter Property="Control.Template"
+                Value="{DynamicResource {ComponentResourceKey ResourceId=SubmenuHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
+            </Trigger>
+            <Trigger Property="MenuItem.Role" Value="SubmenuItem">
+                <Setter Property="Control.Padding" Value="2 6 2 6"/>
+                <Setter Property="Control.Template"
+                Value="{DynamicResource {ComponentResourceKey ResourceId=SubmenuItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</rd:SharedResourceDictionary>

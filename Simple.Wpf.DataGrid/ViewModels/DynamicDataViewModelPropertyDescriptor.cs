@@ -27,7 +27,7 @@ namespace Simple.Wpf.DataGrid.ViewModels
 
         public override object GetValue(object component)
         {
-            return ((DynamicDataViewModel) component)[Name];
+            return ((DynamicDataViewModel)component)[Name];
         }
 
         public override void ResetValue(object component)

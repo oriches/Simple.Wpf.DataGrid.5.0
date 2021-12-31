@@ -19,7 +19,7 @@ namespace Simple.Wpf.DataGrid.Services
         public HeartbeatService(TimeSpan interval, ISchedulerService schedulerService)
         {
             using (Duration.Measure(Logger, "Constructor - " + GetType()
-                .Name))
+                       .Name))
             {
                 _listen = Observable.Interval(interval, schedulerService.TaskPool)
                     .AsUnit()

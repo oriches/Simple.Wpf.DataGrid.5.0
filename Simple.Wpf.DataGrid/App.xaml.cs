@@ -45,7 +45,7 @@ namespace Simple.Wpf.DataGrid
         protected override void OnStartup(StartupEventArgs args)
         {
             using (Duration.Measure(Logger, "OnStartup - " + GetType()
-                .Name))
+                       .Name))
             {
                 Logger.Info("Starting");
 

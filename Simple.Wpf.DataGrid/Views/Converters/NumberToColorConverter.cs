@@ -46,7 +46,7 @@ namespace Simple.Wpf.DataGrid.Views.Converters
 
         private static SolidColorBrush GetBrush(string resource)
         {
-            return (SolidColorBrush) Application.Current.Resources[resource];
+            return (SolidColorBrush)Application.Current.Resources[resource];
         }
     }
 }

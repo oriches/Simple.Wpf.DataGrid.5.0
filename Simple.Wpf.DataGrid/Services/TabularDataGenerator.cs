@@ -49,10 +49,10 @@ namespace Simple.Wpf.DataGrid.Services
 
             Types = new Dictionary<Type, Func<object>>
             {
-                {typeof(string), GenerateString},
-                {typeof(double), GenerateDouble},
-                {typeof(int), GenerateInteger},
-                {typeof(DateTime), GenerateDateTime}
+                { typeof(string), GenerateString },
+                { typeof(double), GenerateDouble },
+                { typeof(int), GenerateInteger },
+                { typeof(DateTime), GenerateDateTime }
             };
         }
 
@@ -125,7 +125,7 @@ namespace Simple.Wpf.DataGrid.Services
             var length = StringLengthRandom.Next(4, 20);
             var sb = new StringBuilder(length);
 
-            for (var i = 0; i < length; i++) sb.Append((char) StringCharRandom.Next(65, 91));
+            for (var i = 0; i < length; i++) sb.Append((char)StringCharRandom.Next(65, 91));
 
             return sb.ToString();
         }
@@ -160,10 +160,10 @@ namespace Simple.Wpf.DataGrid.Services
 
                 if (propertyType == typeof(int))
                 {
-                    var tenPercent = Convert.ToInt32((int) property * UpdatesRandom.NextDouble());
+                    var tenPercent = Convert.ToInt32((int)property * UpdatesRandom.NextDouble());
                     var delta = UpdatesRandom.Next(0, 100000) < 60000 ? -1 * tenPercent : tenPercent;
 
-                    x.Update(propertyName, (int) property + delta);
+                    x.Update(propertyName, (int)property + delta);
                 }
                 else if (propertyType == typeof(double))
                 {
@@ -171,7 +171,7 @@ namespace Simple.Wpf.DataGrid.Services
                         ? -1 * UpdatesRandom.NextDouble()
                         : 1 * UpdatesRandom.NextDouble();
 
-                    x.Update(propertyName, (double) property + delta);
+                    x.Update(propertyName, (double)property + delta);
                 }
             });
 

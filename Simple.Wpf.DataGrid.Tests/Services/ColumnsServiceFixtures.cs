@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using Moq;
@@ -27,7 +26,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
             // ARRANGE
             var identifier1 = "Grid.1";
             var identifier2 = "Grid.2";
-            var columns = new[] {"Col1", "Col2", "Col3", "Col4"};
+            var columns = new[] { "Col1", "Col2", "Col3", "Col4" };
 
             ISettings settings1 = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings1[Constants.UI.Settings.Names.Columns] = columns;
@@ -48,7 +47,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
                 .Subscribe(x => changedIdentifier = x);
 
             // ACT
-            service.HideColumns(identifier2, new[] {"Col1", "Col2"});
+            service.HideColumns(identifier2, new[] { "Col1", "Col2" });
 
             // ASSERT
             Assert.That(changedIdentifier, Is.Null);
@@ -65,7 +64,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
             // ARRANGE
             var identifier1 = "Grid.1";
             var identifier2 = "Grid.2";
-            var columns = new[] {"Col1", "Col2", "Col3", "Col4"};
+            var columns = new[] { "Col1", "Col2", "Col3", "Col4" };
 
             ISettings settings1 = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings1[Constants.UI.Settings.Names.Columns] = columns;
@@ -86,7 +85,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
                 .Subscribe(x => changedIdentifier = x);
 
             // ACT
-            service.ShowColumns(identifier2, new[] {"Col1", "Col2"});
+            service.ShowColumns(identifier2, new[] { "Col1", "Col2" });
 
             // ASSERT
             Assert.That(changedIdentifier, Is.Null);
@@ -98,7 +97,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
         {
             // ARRANGE
             var identifier = "Grid.1";
-            var columns = new[] {"Col1", "Col2", "Col3", "Col4"};
+            var columns = new[] { "Col1", "Col2", "Col3", "Col4" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = columns;
@@ -114,7 +113,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
                 .Subscribe(x => changedIdentifier = x);
 
             // ACT
-            service.HideColumns(identifier, new[] {"Col1", "Col2"});
+            service.HideColumns(identifier, new[] { "Col1", "Col2" });
 
             // ASSERT
             Assert.That(changedIdentifier, Is.EqualTo(identifier));
@@ -127,7 +126,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
                 Is.False);
             Assert.That(
                 settings.Get<string[]>(Constants.UI.Settings.Names.VisibleColumns)
-                    .SequenceEqual(new[] {"Col3", "Col4"}), Is.True);
+                    .SequenceEqual(new[] { "Col3", "Col4" }), Is.True);
         }
 
         [Test]
@@ -135,7 +134,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
         {
             // ARRANGE
             var identifer = "Grid.1";
-            var columns = new[] {"Col1", "Col2", "Col3"};
+            var columns = new[] { "Col1", "Col2", "Col3" };
 
             var settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
 
@@ -162,8 +161,8 @@ namespace Simple.Wpf.DataGrid.Tests.Services
         {
             // ARRANGE
             var identifer = "Grid.1";
-            var columns = new[] {"Col1", "Col2", "Col3", "Col4"};
-            var visibleColumns = new[] {"Col2", "Col4"};
+            var columns = new[] { "Col1", "Col2", "Col3", "Col4" };
+            var visibleColumns = new[] { "Col2", "Col4" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = columns;
@@ -188,8 +187,8 @@ namespace Simple.Wpf.DataGrid.Tests.Services
             // ARRANGE
             var identifer1 = "Grid.1";
             var identifer2 = "Grid.2";
-            var allColumns = new[] {"Col1", "Col2", "Col3", "Col4"};
-            var visibleColumns = new[] {"Col2", "Col4"};
+            var allColumns = new[] { "Col1", "Col2", "Col3", "Col4" };
+            var visibleColumns = new[] { "Col2", "Col4" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = allColumns;
@@ -214,7 +213,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
             // ARRANGE
             var identifer1 = "Grid.1";
             var identifer2 = "Grid.2";
-            var columns = new[] {"Col1", "Col2", "Col3"};
+            var columns = new[] { "Col1", "Col2", "Col3" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = columns;
@@ -237,8 +236,8 @@ namespace Simple.Wpf.DataGrid.Tests.Services
         {
             // ARRANGE
             var identifer = "Grid.1";
-            var allColumns = new[] {"Col1", "Col2", "Col3", "Col4"};
-            var visibleColumns = new[] {"Col2", "Col4"};
+            var allColumns = new[] { "Col1", "Col2", "Col3", "Col4" };
+            var visibleColumns = new[] { "Col2", "Col4" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = allColumns;
@@ -253,7 +252,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
             var hiddenColumns = service.HiddenColumns(identifer);
 
             // ASSERT
-            Assert.That(hiddenColumns.SequenceEqual(new[] {"Col1", "Col3"}), Is.True);
+            Assert.That(hiddenColumns.SequenceEqual(new[] { "Col1", "Col3" }), Is.True);
         }
 
         [Test]
@@ -263,8 +262,8 @@ namespace Simple.Wpf.DataGrid.Tests.Services
             var identifier1 = "Grid.1";
             var identifier2 = "Grid.2";
 
-            var columns = new[] {"Col1", "Col2", "Col3", "Col4"};
-            var visibleColumns = new[] {"Col2", "Col4"};
+            var columns = new[] { "Col1", "Col2", "Col3", "Col4" };
+            var visibleColumns = new[] { "Col2", "Col4" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = columns;
@@ -288,7 +287,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
         {
             // ARRANGE
             var identifer = "Grid.1";
-            var columns = new[] {"Col1", "Col2", "Col3"};
+            var columns = new[] { "Col1", "Col2", "Col3" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = columns;
@@ -311,7 +310,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
         {
             // ARRANGE
             var identifier = "Grid.1";
-            var columns = new[] {"Col1", "Col2", "Col3", "Col4"};
+            var columns = new[] { "Col1", "Col2", "Col3", "Col4" };
 
             ISettings settings = new Settings(Enumerable.Empty<Setting>(), new Subject<bool>());
             settings[Constants.UI.Settings.Names.Columns] = columns;
@@ -327,7 +326,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
                 .Subscribe(x => changedIdentifier = x);
 
             // ACT
-            service.ShowColumns(identifier, new[] {"Col1", "Col2"});
+            service.ShowColumns(identifier, new[] { "Col1", "Col2" });
 
             // ASSERT
             Assert.That(changedIdentifier, Is.EqualTo(identifier));
@@ -340,7 +339,7 @@ namespace Simple.Wpf.DataGrid.Tests.Services
                 Is.False);
             Assert.That(
                 settings.Get<string[]>(Constants.UI.Settings.Names.VisibleColumns)
-                    .SequenceEqual(new[] {"Col1", "Col2"}), Is.True);
+                    .SequenceEqual(new[] { "Col1", "Col2" }), Is.True);
         }
     }
 }

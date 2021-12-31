@@ -17,7 +17,7 @@ namespace Simple.Wpf.DataGrid.Views.Converters
             {
                 if (value == null) return False;
 
-                var boolValue = (bool) value;
+                var boolValue = (bool)value;
                 return boolValue ? False : True;
             }
             catch (Exception)

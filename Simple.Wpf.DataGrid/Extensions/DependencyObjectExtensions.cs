@@ -37,11 +37,11 @@ namespace Simple.Wpf.DataGrid.Extensions
                 {
                     if (current is T && current is FrameworkElement frameworkElement &&
                         frameworkElement.Name == parentName)
-                        return (T) current;
+                        return (T)current;
                 }
                 else if (current is T)
                 {
-                    return (T) current;
+                    return (T)current;
                 }
 
                 current = VisualTreeHelper.GetParent(current);
@@ -72,7 +72,7 @@ namespace Simple.Wpf.DataGrid.Extensions
                 {
                     if (child is FrameworkElement frameworkElement && frameworkElement.Name == childName)
                     {
-                        foundChild = (T) child;
+                        foundChild = (T)child;
                         break;
                     }
 
@@ -82,7 +82,7 @@ namespace Simple.Wpf.DataGrid.Extensions
                 }
                 else
                 {
-                    foundChild = (T) child;
+                    foundChild = (T)child;
                     break;
                 }
             }
@@ -107,7 +107,7 @@ namespace Simple.Wpf.DataGrid.Extensions
                 }
                 else
                 {
-                    foundChild = (T) child;
+                    foundChild = (T)child;
                     break;
                 }
             }

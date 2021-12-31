@@ -13,7 +13,7 @@ namespace Simple.Wpf.DataGrid.Services
         public OverlayService()
         {
             using (Duration.Measure(Logger, "Constructor - " + GetType()
-                .Name))
+                       .Name))
             {
                 _show = new Subject<OverlayViewModel>()
                     .DisposeWith(this);

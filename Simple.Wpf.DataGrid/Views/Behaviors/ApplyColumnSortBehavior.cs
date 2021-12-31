@@ -21,7 +21,7 @@ namespace Simple.Wpf.DataGrid.Views.Behaviors
 
         public ListSortDirection Direction
         {
-            get => (ListSortDirection) GetValue(DirectionProperty);
+            get => (ListSortDirection)GetValue(DirectionProperty);
             set => SetValue(DirectionProperty, value);
         }
 

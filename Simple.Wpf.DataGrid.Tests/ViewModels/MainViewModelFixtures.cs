@@ -89,17 +89,17 @@ namespace Simple.Wpf.DataGrid.Tests.ViewModels
             {
                 new DynamicData
                 {
-                    {"id", 1},
-                    {"col1", 1},
-                    {"col2", 2},
-                    {"col3", 3}
+                    { "id", 1 },
+                    { "col1", 1 },
+                    { "col2", 2 },
+                    { "col3", 3 }
                 },
                 new DynamicData
                 {
-                    {"id", 2},
-                    {"col1", 1},
-                    {"col2", 2},
-                    {"col3", 3}
+                    { "id", 2 },
+                    { "col1", 1 },
+                    { "col2", 2 },
+                    { "col3", 3 }
                 }
             };
 

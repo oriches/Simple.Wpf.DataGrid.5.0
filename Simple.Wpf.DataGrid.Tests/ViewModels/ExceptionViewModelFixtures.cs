@@ -52,7 +52,7 @@ namespace Simple.Wpf.DataGrid.Tests.ViewModels
         {
             // ARRANGE
             _applicationService.SetupGet(x => x.LogFolder)
-                .Returns((string) null);
+                .Returns((string)null);
 
             var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 

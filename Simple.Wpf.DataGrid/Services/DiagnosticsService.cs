@@ -23,7 +23,7 @@ namespace Simple.Wpf.DataGrid.Services
         public DiagnosticsService(IIdleService idleService, ISchedulerService schedulerService)
         {
             using (Duration.Measure(Logger, "Constructor - " + GetType()
-                .Name))
+                       .Name))
             {
                 _disposable = new CompositeDisposable()
                     .DisposeWith(this);
@@ -172,12 +172,12 @@ namespace Simple.Wpf.DataGrid.Services
         {
             var currentProcess = Process.GetCurrentProcess();
             foreach (var instance in new PerformanceCounterCategory("Process").GetInstanceNames()
-                .Where(x => x.StartsWith(currentProcess.ProcessName, StringComparison.InvariantCulture)))
+                         .Where(x => x.StartsWith(currentProcess.ProcessName, StringComparison.InvariantCulture)))
                 try
                 {
                     using (var counter = new PerformanceCounter("Process", "ID Process", instance, true))
                     {
-                        var val = (int) counter.RawValue;
+                        var val = (int)counter.RawValue;
                         if (val == currentProcess.Id) return instance;
                     }
                 }

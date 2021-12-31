@@ -6,6 +6,7 @@
                              xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors">
 
     <rd:SharedResourceDictionary.MergedDictionaries>
+        <rd:SharedResourceDictionary Source="../Styles/MahAppsStyles.xaml" />
         <rd:SharedResourceDictionary Source="../Brushes/Brushes.xaml" />
         <rd:SharedResourceDictionary Source="../Colors/Colors.xaml" />
         <rd:SharedResourceDictionary
@@ -27,7 +28,8 @@
                                 <MenuItem x:Name="SortAscendingMenuItem"
                                           Padding="2"
                                           FontSize="12"
-                                          Header="Sort Ascending">
+                                          Header="Sort Ascending"
+                                          Style="{StaticResource MahApps.Styles.MenuItem}">
                                     <behaviors:Interaction.Behaviors>
                                         <b:ApplyColumnSortBehavior Direction="Ascending" />
                                     </behaviors:Interaction.Behaviors>
@@ -35,7 +37,8 @@
                                 <MenuItem x:Name="SortDescendingMenuItem"
                                           Padding="2"
                                           FontSize="12"
-                                          Header="Sort Descending">
+                                          Header="Sort Descending"
+                                          Style="{StaticResource MahApps.Styles.MenuItem}">
                                     <behaviors:Interaction.Behaviors>
                                         <b:ApplyColumnSortBehavior Direction="Descending" />
                                     </behaviors:Interaction.Behaviors>
@@ -43,7 +46,8 @@
                                 <MenuItem x:Name="ClearSortMenuItem"
                                           Padding="2"
                                           FontSize="12"
-                                          Header="Clear Sort">
+                                          Header="Clear Sort"
+                                          Style="{StaticResource MahApps.Styles.MenuItem}">
                                     <behaviors:Interaction.Behaviors>
                                         <b:ClearColumnSortBehavior />
                                     </behaviors:Interaction.Behaviors>

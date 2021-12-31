@@ -13,11 +13,11 @@ namespace Simple.Wpf.DataGrid.Services
     {
         private static readonly IDictionary<string, CultureInfo> Cultures = new Dictionary<string, CultureInfo>
         {
-            {"English (UK)", new CultureInfo("en-GB")},
-            {"English (USA)", new CultureInfo("en-US")},
-            {"French (FRA)", new CultureInfo("fr-FR")},
-            {"German (DEU)", new CultureInfo("de-DE")},
-            {"Chinese (SGP)", new CultureInfo("zh-SG")}
+            { "English (UK)", new CultureInfo("en-GB") },
+            { "English (USA)", new CultureInfo("en-US") },
+            { "French (FRA)", new CultureInfo("fr-FR") },
+            { "German (DEU)", new CultureInfo("de-DE") },
+            { "Chinese (SGP)", new CultureInfo("zh-SG") }
         };
 
         private static readonly BehaviorSubject<string> Changed;

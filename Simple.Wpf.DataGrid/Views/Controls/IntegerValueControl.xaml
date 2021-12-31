@@ -4,9 +4,10 @@
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                      xmlns:s="clr-namespace:Simple.Wpf.DataGrid"
+                      xmlns:s1="clr-namespace:Simple.Wpf.DataGrid"
                       xmlns:c="clr-namespace:Simple.Wpf.DataGrid.Views.Controls"
                       xmlns:rd="clr-namespace:Simple.Wpf.DataGrid.Views.ResourceDictionaries"
+                      xmlns:s2="clr-namespace:System;assembly=System.Runtime"
                       mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -28,8 +29,8 @@
             <VisualStateGroup x:Name="MyStates">
                 <VisualStateGroup.Transitions>
                     <VisualTransition GeneratedDuration="0"
-                                      From="{x:Static s:Constants+UI+Grids+Transitions.Default}"
-                                      To="{x:Static s:Constants+UI+Grids+Transitions.NewPositive}">
+                                      From="{x:Static s1:Constants+UI+Grids+Transitions.Default}"
+                                      To="{x:Static s1:Constants+UI+Grids+Transitions.NewPositive}">
                         <Storyboard x:Name="PositiveNumberStoryboard"
                                     TargetName="IntegerGrid"
                                     TargetProperty="Background.Color">
@@ -40,8 +41,8 @@
                         </Storyboard>
                     </VisualTransition>
                     <VisualTransition GeneratedDuration="0"
-                                      From="{x:Static s:Constants+UI+Grids+Transitions.Default}"
-                                      To="{x:Static s:Constants+UI+Grids+Transitions.NewNegative}">
+                                      From="{x:Static s1:Constants+UI+Grids+Transitions.Default}"
+                                      To="{x:Static s1:Constants+UI+Grids+Transitions.NewNegative}">
                         <Storyboard x:Name="NegativeNumberStoryboard"
                                     TargetName="IntegerGrid"
                                     TargetProperty="Background.Color">
@@ -52,11 +53,11 @@
                         </Storyboard>
                     </VisualTransition>
                     <VisualTransition GeneratedDuration="0"
-                                      From="{x:Static s:Constants+UI+Grids+Transitions.NewPositive}"
-                                      To="{x:Static s:Constants+UI+Grids+Transitions.Default}" />
+                                      From="{x:Static s1:Constants+UI+Grids+Transitions.NewPositive}"
+                                      To="{x:Static s1:Constants+UI+Grids+Transitions.Default}" />
                     <VisualTransition GeneratedDuration="0"
-                                      From="{x:Static s:Constants+UI+Grids+Transitions.NewNegative}"
-                                      To="{x:Static s:Constants+UI+Grids+Transitions.Default}" />
+                                      From="{x:Static s1:Constants+UI+Grids+Transitions.NewNegative}"
+                                      To="{x:Static s1:Constants+UI+Grids+Transitions.Default}" />
                 </VisualStateGroup.Transitions>
                 <VisualState x:Name="NewPositive" />
                 <VisualState x:Name="NewNegative" />
@@ -65,7 +66,7 @@
 
         </VisualStateManager.VisualStateGroups>
 
-        <TextBlock Text="{Binding Mode=OneWay, StringFormat={}{0:N0}}"
+        <TextBlock Text="{Binding Mode=OneWay, StringFormat={}{0:N0}, FallbackValue={x:Static s2:String.Empty}}"
                    Style="{StaticResource DataGridNumberTextBlockStyle}" />
 
     </Grid>

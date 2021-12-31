@@ -17,7 +17,7 @@ namespace Simple.Wpf.DataGrid.ViewModels
         public static PropertyDescriptorCollection PropertyDescriptors;
 
         private static readonly string[] AuditProperties =
-            {Constants.UI.Grids.PredefinedColumns.CreatedOn, Constants.UI.Grids.PredefinedColumns.ModifiedOn};
+            { Constants.UI.Grids.PredefinedColumns.CreatedOn, Constants.UI.Grids.PredefinedColumns.ModifiedOn };
 
         private readonly object _createdOn;
         private readonly DynamicData _data;
@@ -52,13 +52,13 @@ namespace Simple.Wpf.DataGrid.ViewModels
 
         public string Id => _data.Id;
 
-        public DateTime CreatedOn => (DateTime) _createdOn;
+        public DateTime CreatedOn => (DateTime)_createdOn;
 
-        public DateTime ModifiedOn => (DateTime) _modifiedOn;
+        public DateTime ModifiedOn => (DateTime)_modifiedOn;
 
         public int CompareTo(object obj)
         {
-            return CompareTo((DynamicDataViewModel) obj);
+            return CompareTo((DynamicDataViewModel)obj);
         }
 
         public int CompareTo(DynamicDataViewModel other)

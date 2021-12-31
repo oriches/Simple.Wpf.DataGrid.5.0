@@ -16,7 +16,7 @@ namespace Simple.Wpf.DataGrid.Services
         public ColumnsService(ISettingsService settingsService)
         {
             using (Duration.Measure(Logger, "Constructor - " + GetType()
-                .Name))
+                       .Name))
             {
                 _settingsService = settingsService;
 

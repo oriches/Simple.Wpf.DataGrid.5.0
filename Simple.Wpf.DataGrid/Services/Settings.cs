@@ -81,7 +81,7 @@ namespace Simple.Wpf.DataGrid.Services
                 _index = -1;
             }
 
-            object IEnumerator.Current => ((IEnumerator<Setting>) this).Current;
+            object IEnumerator.Current => ((IEnumerator<Setting>)this).Current;
 
             Setting IEnumerator<Setting>.Current => _settings[_index];
 

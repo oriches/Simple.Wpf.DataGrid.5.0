@@ -53,7 +53,7 @@ namespace Simple.Wpf.DataGrid.ViewModels
 
             _dataIds = new Dictionary<object, DynamicDataViewModel>(1000);
             _data = new CustomTypeRangeObservableCollection<DynamicDataViewModel>();
-            _collectionView = new ListCollectionView(_data) {Filter = FilterData};
+            _collectionView = new ListCollectionView(_data) { Filter = FilterData };
 
             _updateStats = new Dictionary<long, int>();
 

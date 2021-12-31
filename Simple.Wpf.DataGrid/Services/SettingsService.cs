@@ -12,9 +12,9 @@ namespace Simple.Wpf.DataGrid.Services
     public sealed class SettingsService : DisposableObject, ISettingsService
     {
         private readonly Subject<bool> _persist;
-        private readonly object _persistSync = new object();
+        private readonly object _persistSync = new();
 
-        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
+        private readonly JsonSerializerSettings _serializerSettings = new()
         {
             Formatting = Formatting.Indented,
             TypeNameHandling = TypeNameHandling.All
@@ -25,7 +25,7 @@ namespace Simple.Wpf.DataGrid.Services
         public SettingsService(ISchedulerService schedulerService)
         {
             using (Duration.Measure(Logger, "Constructor - " + GetType()
-                .Name))
+                       .Name))
             {
                 _persist = new Subject<bool>()
                     .DisposeWith(this);
@@ -73,7 +73,7 @@ namespace Simple.Wpf.DataGrid.Services
 
             globalSettings.AddRange(_settings.Select(x =>
             {
-                var settings = x.Value.Select(z => new Dtos.Setting {Name = z.Name, Value = z.Value})
+                var settings = x.Value.Select(z => new Dtos.Setting { Name = z.Name, Value = z.Value })
                     .ToArray();
 
                 return new KeyValuePair<string, IEnumerable<Dtos.Setting>>(x.Key, settings);

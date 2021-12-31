@@ -30,7 +30,7 @@ namespace Simple.Wpf.DataGrid
             if (_rootScope != null) return;
 
             var builder = new ContainerBuilder();
-            var assemblies = new[] {Assembly.GetExecutingAssembly()};
+            var assemblies = new[] { Assembly.GetExecutingAssembly() };
 
             builder.RegisterAssemblyTypes(assemblies)
                 .Where(t => typeof(IService).IsAssignableFrom(t))

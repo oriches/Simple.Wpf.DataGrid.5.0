@@ -13,8 +13,7 @@ namespace Simple.Wpf.DataGrid.Views.ResourceDictionaries
         /// <summary>
         ///     Internal cache of loaded dictionaries
         /// </summary>
-        public static ThreadLocal<IDictionary<Uri, ResourceDictionary>> SharedDictionaries =
-            new ThreadLocal<IDictionary<Uri, ResourceDictionary>>();
+        public static ThreadLocal<IDictionary<Uri, ResourceDictionary>> SharedDictionaries = new();
 
         /// <summary>
         ///     Local member of the source uri

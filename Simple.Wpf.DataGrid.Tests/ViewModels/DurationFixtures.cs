@@ -29,7 +29,7 @@ namespace Simple.Wpf.DataGrid.Tests.ViewModels
         //
         // Why not push behind an interface? - sick of to many interfaces in projects, and hate the idea of just creating it for testing purposes...
         //
-        private static readonly Mutex DurationMutex = new Mutex(false, "Simple.Wpf.Datagrid.Tests.DurationFixtures");
+        private static readonly Mutex DurationMutex = new(false, "Simple.Wpf.Datagrid.Tests.DurationFixtures");
 
         [Test]
         public void does_not_log_duration_when_debug_log_level_is_disabled()
@@ -37,7 +37,7 @@ namespace Simple.Wpf.DataGrid.Tests.ViewModels
             // ARRANGE
             LogHelper.ReconfigureLoggerToLevel(LogLevel.Info);
             var logger = LogManager.GetCurrentClassLogger();
-            var memoryTarget = (LimitedMemoryTarget) LogManager.Configuration.FindTargetByName("memory");
+            var memoryTarget = (LimitedMemoryTarget)LogManager.Configuration.FindTargetByName("memory");
 
             var message = $"Message 1 - {Guid.NewGuid()}";
 
@@ -59,7 +59,7 @@ namespace Simple.Wpf.DataGrid.Tests.ViewModels
             // ARRANGE
             LogHelper.ReconfigureLoggerToLevel(LogLevel.Debug);
             var logger = LogManager.GetCurrentClassLogger();
-            var memoryTarget = (LimitedMemoryTarget) LogManager.Configuration.FindTargetByName("memory");
+            var memoryTarget = (LimitedMemoryTarget)LogManager.Configuration.FindTargetByName("memory");
 
             var message = $"Message 1 - {Guid.NewGuid()}";
 

@@ -27,4 +27,8 @@
                      Color="{StaticResource DefaultBackgroundColor}"
                      po:Freeze="True" />
 
+    <SolidColorBrush x:Key="BlackBrush"
+                     Color="Black"
+                     po:Freeze="True" />
+
 </rd:SharedResourceDictionary>

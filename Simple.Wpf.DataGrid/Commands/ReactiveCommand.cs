@@ -83,7 +83,7 @@ namespace Simple.Wpf.DataGrid.Commands
         public void Dispose()
         {
             using (Duration.Measure(Logger, "Dispose - " + GetType()
-                .Name))
+                       .Name))
             {
                 _eventHandlers.ForEach(x => CommandManager.RequerySuggested -= x);
                 _eventHandlers.Clear();

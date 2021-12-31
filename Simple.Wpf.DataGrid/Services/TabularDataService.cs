@@ -21,7 +21,7 @@ namespace Simple.Wpf.DataGrid.Services
         {
             _schedulerService = schedulerService;
             using (Duration.Measure(Logger, "Constructor - " + GetType()
-                .Name))
+                       .Name))
             {
             }
         }

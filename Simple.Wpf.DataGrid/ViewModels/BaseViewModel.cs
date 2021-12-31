@@ -11,7 +11,7 @@ namespace Simple.Wpf.DataGrid.ViewModels
 {
     public abstract class BaseViewModel : DisposableObject, IViewModel
     {
-        private static readonly PropertyChangedEventArgs EmptyChangeArgs = new PropertyChangedEventArgs(string.Empty);
+        private static readonly PropertyChangedEventArgs EmptyChangeArgs = new(string.Empty);
 
         private static readonly IDictionary<string, PropertyChangedEventArgs> ChangedProperties =
             new Dictionary<string, PropertyChangedEventArgs>();
@@ -85,7 +85,7 @@ namespace Simple.Wpf.DataGrid.ViewModels
         {
             private readonly Counter _counter;
 
-            private readonly HashSet<string> _properties = new HashSet<string>();
+            private readonly HashSet<string> _properties = new();
             private readonly BaseViewModel _target;
 
             public SuspendedNotifications(BaseViewModel target)

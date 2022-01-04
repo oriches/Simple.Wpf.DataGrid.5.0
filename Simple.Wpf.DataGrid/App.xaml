@@ -17,11 +17,11 @@
                     Source="pack://application:,,,/MahApps.Metro;component/Styles/controls.buttons.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Colors/Colors.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Brushes/Brushes.xaml" />
-                <rd:SharedResourceDictionary Source="Views/Styles/MahAppsStyles.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Styles/ButtonStyles.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Styles/DataGridStyles.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Styles/ListBoxStyles.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Styles/TextBlockStyles.xaml" />
+                <rd:SharedResourceDictionary Source="Views/Styles/MahAppsStyles.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Icons/Icons.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Templates/DataGridCellTemplates.xaml" />
                 <rd:SharedResourceDictionary Source="Views/Templates/DiagnosticsViewModelTemplate.xaml" />

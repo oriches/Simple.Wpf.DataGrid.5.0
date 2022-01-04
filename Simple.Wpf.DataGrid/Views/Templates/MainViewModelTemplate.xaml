@@ -103,6 +103,7 @@
                               AllowDrop="False"
                               CanUserAddRows="False"
                               CanUserDeleteRows="False"
+                              RowHeaderStyle="{StaticResource MahApps.Styles.DataGridRowHeader}"
                               IsReadOnly="True"
                               ItemsSource="{Binding Data, IsAsync=True}"
                               ScrollViewer.CanContentScroll="True"

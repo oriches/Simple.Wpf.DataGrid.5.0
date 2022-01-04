@@ -155,11 +155,14 @@ namespace Simple.Wpf.DataGrid.Views.Controls
             ChooseCellTemplateAndSelector(isEditing, out var template, out var templateSelector);
             if (template != null || templateSelector != null)
             {
-                var contentPresenter = new ContentPresenter();
+                var contentPresenter = new ContentPresenter
+                {
+                    Name = "NumberValueContentPresenter"
+                };
 
                 var binding = new Binding
                 {
-                    FallbackValue = string.Empty, IsAsync = true
+                    FallbackValue = string.Empty, IsAsync = true, TargetNullValue = string.Empty
                 };
 
                 BindingOperations.SetBinding(contentPresenter, ContentPresenter.ContentProperty, binding);

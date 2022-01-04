@@ -18,8 +18,9 @@
 
     <DataTemplate x:Key="DataGridDateTimeCellTemplate">
 
-        <TextBlock Text="{Binding Converter={x:Static c2:FormatDateTimeConverter.Instance}, FallbackValue={x:Static s:String.Empty}}"
-                   Style="{StaticResource DataGridDateTimeTextBlockStyle}" />
+        <TextBlock
+            Text="{Binding Converter={x:Static c2:FormatDateTimeConverter.Instance}, FallbackValue={x:Static s:String.Empty}}"
+            Style="{StaticResource DataGridDateTimeTextBlockStyle}" />
 
     </DataTemplate>
 

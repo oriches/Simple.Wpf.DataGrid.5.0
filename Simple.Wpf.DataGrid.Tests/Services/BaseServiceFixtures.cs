@@ -2,19 +2,18 @@ using Moq;
 using Simple.Wpf.DataGrid.Extensions;
 using Simple.Wpf.DataGrid.Services;
 
-namespace Simple.Wpf.DataGrid.Tests.Services
+namespace Simple.Wpf.DataGrid.Tests.Services;
+
+public abstract class BaseServiceFixtures
 {
-    public abstract class BaseServiceFixtures
+    protected BaseServiceFixtures()
     {
-        protected BaseServiceFixtures()
-        {
-            GestureService = new Mock<IGestureService>();
-            GestureService.Setup(x => x.SetBusy())
-                .Verifiable();
+        GestureService = new Mock<IGestureService>();
+        GestureService.Setup(x => x.SetBusy())
+            .Verifiable();
 
-            ObservableExtensions.GestureService = GestureService.Object;
-        }
-
-        public Mock<IGestureService> GestureService { get; }
+        ObservableExtensions.GestureService = GestureService.Object;
     }
+
+    public Mock<IGestureService> GestureService { get; }
 }

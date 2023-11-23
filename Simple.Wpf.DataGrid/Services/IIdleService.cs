@@ -1,10 +1,9 @@
 using System;
 using System.Reactive;
 
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public interface IIdleService : IService
 {
-    public interface IIdleService : IService
-    {
-        IObservable<Unit> Idling { get; }
-    }
+    IObservable<Unit> Idling { get; }
 }

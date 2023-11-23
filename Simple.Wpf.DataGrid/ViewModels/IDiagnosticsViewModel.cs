@@ -1,9 +1,8 @@
-namespace Simple.Wpf.DataGrid.ViewModels
+namespace Simple.Wpf.DataGrid.ViewModels;
+
+public interface IDiagnosticsViewModel : IViewModel
 {
-    public interface IDiagnosticsViewModel : IViewModel
-    {
-        string Cpu { get; }
-        string ManagedMemory { get; }
-        string TotalMemory { get; }
-    }
+    string Cpu { get; }
+    string ManagedMemory { get; }
+    string TotalMemory { get; }
 }

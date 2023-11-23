@@ -1,7 +1,6 @@
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public interface IGestureService : IService
 {
-    public interface IGestureService : IService
-    {
-        void SetBusy();
-    }
+    void SetBusy();
 }

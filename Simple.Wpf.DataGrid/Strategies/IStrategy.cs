@@ -1,6 +1,5 @@
-﻿namespace Simple.Wpf.DataGrid.Strategies
+﻿namespace Simple.Wpf.DataGrid.Strategies;
+
+public interface IStrategy
 {
-    public interface IStrategy
-    {
-    }
 }

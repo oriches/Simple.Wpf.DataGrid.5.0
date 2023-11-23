@@ -1,7 +1,6 @@
-namespace Simple.Wpf.DataGrid.ViewModels
+namespace Simple.Wpf.DataGrid.ViewModels;
+
+public interface IMainViewModel : IViewModel
 {
-    public interface IMainViewModel : IViewModel
-    {
-        IDiagnosticsViewModel Diagnostics { get; }
-    }
+    IDiagnosticsViewModel Diagnostics { get; }
 }

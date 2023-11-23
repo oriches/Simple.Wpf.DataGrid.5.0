@@ -5,53 +5,50 @@ using System.Reactive.Disposables;
 using System.Threading;
 using NLog;
 
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public sealed class Duration : IDisposable
 {
-    public sealed class Duration : IDisposable
+    private readonly string _context;
+    private readonly Logger _logger;
+    private readonly Stopwatch _stopwatch;
+
+    private Duration(Logger logger, string context)
     {
-        private readonly string _context;
-        private readonly Logger _logger;
-        private readonly Stopwatch _stopwatch;
+        _context = context;
+        _stopwatch = new Stopwatch();
+        _logger = logger;
 
-        private Duration(Logger logger, string context)
+        _stopwatch.Start();
+    }
+
+    public void Dispose()
+    {
+        _stopwatch.Stop();
+
+        var parameters = new object[]
         {
-            _context = context;
-            _stopwatch = new Stopwatch();
-            _logger = logger;
+            _context,
+            _stopwatch.ElapsedMilliseconds.ToString(),
+            _stopwatch.ElapsedTicks.ToString(),
+            Thread.CurrentThread.ManagedThreadId.ToString()
+        };
 
-            _stopwatch.Start();
-        }
+        var message = string.Format("{0}, duration={1}ms, ticks={2}, thread_id={3}", parameters);
 
-        public void Dispose()
-        {
-            _stopwatch.Stop();
+        Debug.WriteLine(message);
+        _logger.Debug(message);
+    }
 
-            var parameters = new object[]
-            {
-                _context,
-                _stopwatch.ElapsedMilliseconds.ToString(),
-                _stopwatch.ElapsedTicks.ToString(),
-                Thread.CurrentThread.ManagedThreadId.ToString()
-            };
+    public static IDisposable Measure(Logger logger, string context) =>
+        !logger.IsDebugEnabled ? Disposable.Empty : new Duration(logger, context);
 
-            var message = string.Format("{0}, duration={1}ms, ticks={2}, thread_id={3}", parameters);
+    public static IDisposable Measure(Logger logger, string context, object[] args)
+    {
+        if (!logger.IsDebugEnabled) return Disposable.Empty;
 
-            Debug.WriteLine(message);
-            _logger.Debug(message);
-        }
+        if (args != null) context = string.Format(CultureInfo.InvariantCulture, context, args);
 
-        public static IDisposable Measure(Logger logger, string context)
-        {
-            return !logger.IsDebugEnabled ? Disposable.Empty : new Duration(logger, context);
-        }
-
-        public static IDisposable Measure(Logger logger, string context, object[] args)
-        {
-            if (!logger.IsDebugEnabled) return Disposable.Empty;
-
-            if (args != null) context = string.Format(CultureInfo.InvariantCulture, context, args);
-
-            return new Duration(logger, context);
-        }
+        return new Duration(logger, context);
     }
 }

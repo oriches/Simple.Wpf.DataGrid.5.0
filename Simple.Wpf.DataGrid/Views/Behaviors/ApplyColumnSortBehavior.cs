@@ -8,97 +8,94 @@ using System.Windows.Data;
 using Microsoft.Xaml.Behaviors;
 using Simple.Wpf.DataGrid.Extensions;
 
-namespace Simple.Wpf.DataGrid.Views.Behaviors
+namespace Simple.Wpf.DataGrid.Views.Behaviors;
+
+public sealed class ApplyColumnSortBehavior : Behavior<MenuItem>
 {
-    public sealed class ApplyColumnSortBehavior : Behavior<MenuItem>
+    public static readonly DependencyProperty DirectionProperty = DependencyProperty.Register("Direction",
+        typeof(ListSortDirection),
+        typeof(ApplyColumnSortBehavior),
+        new PropertyMetadata(default(ListSortDirection)));
+
+    private SerialDisposable _disposable;
+
+    public ListSortDirection Direction
     {
-        public static readonly DependencyProperty DirectionProperty = DependencyProperty.Register("Direction",
-            typeof(ListSortDirection),
-            typeof(ApplyColumnSortBehavior),
-            new PropertyMetadata(default(ListSortDirection)));
+        get => (ListSortDirection)GetValue(DirectionProperty);
+        set => SetValue(DirectionProperty, value);
+    }
 
-        private SerialDisposable _disposable;
+    protected override void OnAttached()
+    {
+        base.OnAttached();
 
-        public ListSortDirection Direction
-        {
-            get => (ListSortDirection)GetValue(DirectionProperty);
-            set => SetValue(DirectionProperty, value);
-        }
+        AssociatedObject.Loaded += HandleLoaded;
+        AssociatedObject.Unloaded += HandleUnloaded;
+    }
 
-        protected override void OnAttached()
-        {
-            base.OnAttached();
+    private void HandleLoaded(object sender, RoutedEventArgs e)
+    {
+        _disposable = new SerialDisposable();
 
-            AssociatedObject.Loaded += HandleLoaded;
-            AssociatedObject.Unloaded += HandleUnloaded;
-        }
+        AssociatedObject.IsEnabled = AssociatedObject.GetHeader()
+            .SortDirection != Direction;
+        AssociatedObject.Click += HandleClick;
+    }
 
-        private void HandleLoaded(object sender, RoutedEventArgs e)
-        {
-            _disposable = new SerialDisposable();
+    private void HandleUnloaded(object sender, RoutedEventArgs e)
+    {
+        AssociatedObject.Click -= HandleClick;
 
-            AssociatedObject.IsEnabled = AssociatedObject.GetHeader()
-                .SortDirection != Direction;
-            AssociatedObject.Click += HandleClick;
-        }
+        _disposable.Dispose();
+    }
 
-        private void HandleUnloaded(object sender, RoutedEventArgs e)
-        {
-            AssociatedObject.Click -= HandleClick;
-
-            _disposable.Dispose();
-        }
-
-        private void HandleClick(object sender, RoutedEventArgs e)
-        {
-            _disposable.Disposable = Observable.Return(new GriColumnAndDirection(AssociatedObject.GetDataGrid(),
-                    AssociatedObject.GetColumn(), Direction))
-                .Select(x => new ColumnCollectionViewAndDirection(x.Column,
-                    CollectionViewSource.GetDefaultView(x.Grid.ItemsSource), x.Direction))
-                .Where(x => x.HasSortDescriptions)
-                .ActivateGestures()
-                .Subscribe(x =>
-                {
-                    x.Column.SortDirection = x.Direction;
-                    x.View.SortDescriptions.Clear();
-                    x.View.SortDescriptions.Add(new SortDescription(x.Column.SortMemberPath, x.Direction));
-                });
-        }
-
-        private sealed class GriColumnAndDirection
-        {
-            public GriColumnAndDirection(System.Windows.Controls.DataGrid grid, DataGridColumn column,
-                ListSortDirection direction)
+    private void HandleClick(object sender, RoutedEventArgs e) =>
+        _disposable.Disposable = Observable.Return(new GriColumnAndDirection(AssociatedObject.GetDataGrid(),
+                AssociatedObject.GetColumn(), Direction))
+            .Select(x => new ColumnCollectionViewAndDirection(x.Column,
+                CollectionViewSource.GetDefaultView(x.Grid.ItemsSource), x.Direction))
+            .Where(x => x.HasSortDescriptions)
+            .ActivateGestures()
+            .Subscribe(x =>
             {
-                Grid = grid;
-                Column = column;
-                Direction = direction;
-            }
+                x.Column.SortDirection = x.Direction;
+                x.View.SortDescriptions.Clear();
+                x.View.SortDescriptions.Add(new SortDescription(x.Column.SortMemberPath, x.Direction));
+            });
 
-            public System.Windows.Controls.DataGrid Grid { get; }
-
-            public DataGridColumn Column { get; }
-
-            public ListSortDirection Direction { get; }
-        }
-
-        private sealed class ColumnCollectionViewAndDirection
+    private sealed class GriColumnAndDirection
+    {
+        public GriColumnAndDirection(System.Windows.Controls.DataGrid grid, DataGridColumn column,
+            ListSortDirection direction)
         {
-            public ColumnCollectionViewAndDirection(DataGridColumn column, ICollectionView view,
-                ListSortDirection direction)
-            {
-                Column = column;
-                View = view;
-                Direction = direction;
-            }
-
-            public DataGridColumn Column { get; }
-
-            public ICollectionView View { get; }
-
-            public ListSortDirection Direction { get; }
-
-            public bool HasSortDescriptions => View?.SortDescriptions != null;
+            Grid = grid;
+            Column = column;
+            Direction = direction;
         }
+
+        public System.Windows.Controls.DataGrid Grid { get; }
+
+        public DataGridColumn Column { get; }
+
+        public ListSortDirection Direction { get; }
+    }
+
+    private sealed class ColumnCollectionViewAndDirection
+    {
+        public ColumnCollectionViewAndDirection(DataGridColumn column, ICollectionView view,
+            ListSortDirection direction)
+        {
+            Column = column;
+            View = view;
+            Direction = direction;
+        }
+
+        public DataGridColumn Column { get; }
+
+        public ICollectionView View { get; }
+
+        public ListSortDirection Direction { get; }
+
+        public bool HasSortDescriptions => View?.SortDescriptions != null;
     }
 }

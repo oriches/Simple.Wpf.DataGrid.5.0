@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using Simple.Wpf.DataGrid.Models;
 
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public interface ITabularDataService : IService
 {
-    public interface ITabularDataService : IService
-    {
-        IObservable<IEnumerable<DynamicData>> GetAsync();
-    }
+    IObservable<IEnumerable<DynamicData>> GetAsync();
 }

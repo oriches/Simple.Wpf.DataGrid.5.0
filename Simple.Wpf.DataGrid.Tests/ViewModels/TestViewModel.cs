@@ -1,22 +1,21 @@
 ﻿using Simple.Wpf.DataGrid.ViewModels;
 
-namespace Simple.Wpf.DataGrid.Tests.ViewModels
+namespace Simple.Wpf.DataGrid.Tests.ViewModels;
+
+public sealed class TestViewModel : BaseViewModel
 {
-    public sealed class TestViewModel : BaseViewModel
+    private int _integerProperty;
+    private string _stringProperty;
+
+    public string StringProperty
     {
-        private int _integerProperty;
-        private string _stringProperty;
+        get => _stringProperty;
+        set => SetProperty(ref _stringProperty, value);
+    }
 
-        public string StringProperty
-        {
-            get => _stringProperty;
-            set => SetProperty(ref _stringProperty, value);
-        }
-
-        public int IntegerProperty
-        {
-            get => _integerProperty;
-            set => SetProperty(ref _integerProperty, value);
-        }
+    public int IntegerProperty
+    {
+        get => _integerProperty;
+        set => SetProperty(ref _integerProperty, value);
     }
 }

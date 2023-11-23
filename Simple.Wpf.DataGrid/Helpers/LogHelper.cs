@@ -3,37 +3,36 @@ using System.Linq;
 using NLog;
 using Simple.Wpf.DataGrid.Extensions;
 
-namespace Simple.Wpf.DataGrid.Helpers
+namespace Simple.Wpf.DataGrid.Helpers;
+
+public static class LogHelper
 {
-    public static class LogHelper
+    private static readonly IEnumerable<LogLevel> AllLevels = new[]
     {
-        private static readonly IEnumerable<LogLevel> AllLevels = new[]
+        LogLevel.Trace,
+        LogLevel.Debug,
+        LogLevel.Info,
+        LogLevel.Warn,
+        LogLevel.Error,
+        LogLevel.Fatal
+    };
+
+    public static void ReconfigureLoggerToLevel(LogLevel level)
+    {
+        var disableLevels = AllLevels.Where(x => x < level)
+            .ToArray();
+
+        var enableLevels = AllLevels.Where(x => x >= level)
+            .ToArray();
+
+        foreach (var rule in LogManager.Configuration.LoggingRules)
         {
-            LogLevel.Trace,
-            LogLevel.Debug,
-            LogLevel.Info,
-            LogLevel.Warn,
-            LogLevel.Error,
-            LogLevel.Fatal
-        };
+            var localRule = rule;
 
-        public static void ReconfigureLoggerToLevel(LogLevel level)
-        {
-            var disableLevels = AllLevels.Where(x => x < level)
-                .ToArray();
-
-            var enableLevels = AllLevels.Where(x => x >= level)
-                .ToArray();
-
-            foreach (var rule in LogManager.Configuration.LoggingRules)
-            {
-                var localRule = rule;
-
-                disableLevels.ForEach(x => localRule.DisableLoggingForLevel(x));
-                enableLevels.ForEach(x => localRule.EnableLoggingForLevel(x));
-            }
-
-            LogManager.ReconfigExistingLoggers();
+            disableLevels.ForEach(x => localRule.DisableLoggingForLevel(x));
+            enableLevels.ForEach(x => localRule.EnableLoggingForLevel(x));
         }
+
+        LogManager.ReconfigExistingLoggers();
     }
 }

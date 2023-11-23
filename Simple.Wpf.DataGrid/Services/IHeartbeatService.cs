@@ -1,10 +1,9 @@
 using System;
 using System.Reactive;
 
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public interface IHeartbeatService : IService
 {
-    public interface IHeartbeatService : IService
-    {
-        IObservable<Unit> Listen { get; }
-    }
+    IObservable<Unit> Listen { get; }
 }

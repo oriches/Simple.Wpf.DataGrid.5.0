@@ -2,33 +2,30 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Simple.Wpf.DataGrid.Views.Converters
+namespace Simple.Wpf.DataGrid.Views.Converters;
+
+public sealed class BooleanInvertConverter : IValueConverter
 {
-    public sealed class BooleanInvertConverter : IValueConverter
+    private static readonly object False = false;
+    private static readonly object True = true;
+
+    public static readonly IValueConverter Instance = new BooleanInvertConverter();
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        private static readonly object False = false;
-        private static readonly object True = true;
-
-        public static readonly IValueConverter Instance = new BooleanInvertConverter();
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        try
         {
-            try
-            {
-                if (value == null) return False;
+            if (value == null) return False;
 
-                var boolValue = (bool)value;
-                return boolValue ? False : True;
-            }
-            catch (Exception)
-            {
-                return False;
-            }
+            var boolValue = (bool)value;
+            return boolValue ? False : True;
         }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        catch (Exception)
         {
-            return Binding.DoNothing;
+            return False;
         }
     }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+        Binding.DoNothing;
 }

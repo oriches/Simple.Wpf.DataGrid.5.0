@@ -5,183 +5,179 @@ using Simple.Wpf.DataGrid.Services;
 using Simple.Wpf.DataGrid.Tests.Services;
 using Simple.Wpf.DataGrid.ViewModels;
 
-namespace Simple.Wpf.DataGrid.Tests.ViewModels
+namespace Simple.Wpf.DataGrid.Tests.ViewModels;
+
+[TestFixture]
+public sealed class ExceptionViewModelFixtures : BaseServiceFixtures
 {
-    [TestFixture]
-    public sealed class ExceptionViewModelFixtures : BaseServiceFixtures
+    [SetUp]
+    public void Setup() => _applicationService = new Mock<IApplicationService>();
+
+    private Mock<IApplicationService> _applicationService;
+
+    [Test]
+    public void can_copy_exception_to_clipboard_when_exception_is_null()
     {
-        [SetUp]
-        public void Setup()
-        {
-            _applicationService = new Mock<IApplicationService>();
-        }
+        // ARRANGE
+        var message = "This is the message";
+        var exception = new Exception(message);
 
-        private Mock<IApplicationService> _applicationService;
+        var viewModel = new ExceptionViewModel(exception, _applicationService.Object);
 
-        [Test]
-        public void can_copy_exception_to_clipboard_when_exception_is_null()
-        {
-            // ARRANGE
-            var message = "This is the message";
-            var exception = new Exception(message);
+        // ACT
+        var canExecute = viewModel.CopyCommand.CanExecute(null);
 
-            var viewModel = new ExceptionViewModel(exception, _applicationService.Object);
+        // ASSERT
+        Assert.That(canExecute, Is.True);
+    }
 
-            // ACT
-            var canExecute = viewModel.CopyCommand.CanExecute(null);
+    [Test]
+    public void can_not_copy_exception_to_clipboard_when_exception_is_null()
+    {
+        // ARRANGE
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-            // ASSERT
-            Assert.That(canExecute, Is.True);
-        }
+        // ACT
+        var canExecute = viewModel.CopyCommand.CanExecute(null);
 
-        [Test]
-        public void can_not_copy_exception_to_clipboard_when_exception_is_null()
-        {
-            // ARRANGE
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
+        // ASSERT
+        Assert.That(canExecute, Is.False);
+    }
 
-            // ACT
-            var canExecute = viewModel.CopyCommand.CanExecute(null);
+    [Test]
+    public void can_not_open_log_folder_when_there_is_no_log_folder()
+    {
+        // ARRANGE
+        _applicationService.SetupGet(x => x.LogFolder)
+            .Returns((string)null);
 
-            // ASSERT
-            Assert.That(canExecute, Is.False);
-        }
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-        [Test]
-        public void can_not_open_log_folder_when_there_is_no_log_folder()
-        {
-            // ARRANGE
-            _applicationService.SetupGet(x => x.LogFolder)
-                .Returns((string)null);
+        // ACT
+        var canExecute = viewModel.OpenLogFolderCommand.CanExecute(null);
 
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
+        // ASSERT
+        Assert.That(canExecute, Is.False);
+    }
 
-            // ACT
-            var canExecute = viewModel.OpenLogFolderCommand.CanExecute(null);
+    [Test]
+    public void can_open_log_folder_when_there_is_a_log_folder()
+    {
+        // ARRANGE
+        _applicationService.SetupGet(x => x.LogFolder)
+            .Returns(@"c:\temp\log.txt");
 
-            // ASSERT
-            Assert.That(canExecute, Is.False);
-        }
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-        [Test]
-        public void can_open_log_folder_when_there_is_a_log_folder()
-        {
-            // ARRANGE
-            _applicationService.SetupGet(x => x.LogFolder)
-                .Returns(@"c:\temp\log.txt");
+        // ACT
+        var canExecute = viewModel.OpenLogFolderCommand.CanExecute(null);
 
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
+        // ASSERT
+        Assert.That(canExecute, Is.True);
+    }
 
-            // ACT
-            var canExecute = viewModel.OpenLogFolderCommand.CanExecute(null);
+    [Test]
+    public void continue_application()
+    {
+        // ARRANGE
+        _applicationService.Setup(x => x.Exit());
 
-            // ASSERT
-            Assert.That(canExecute, Is.True);
-        }
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-        [Test]
-        public void continue_application()
-        {
-            // ARRANGE
-            _applicationService.Setup(x => x.Exit());
+        // ACT
+        viewModel.ContinueCommand.Execute(null);
 
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
+        // ASSERT
+        _applicationService.Verify();
+    }
 
-            // ACT
-            viewModel.ContinueCommand.Execute(null);
+    [Test]
+    public void copy_exception_to_clipboard()
+    {
+        // ARRANGE
+        var message = "This is the message";
+        var exception = new Exception(message);
 
-            // ASSERT
-            _applicationService.Verify();
-        }
+        _applicationService.Setup(x => x.CopyToClipboard(exception.ToString()));
 
-        [Test]
-        public void copy_exception_to_clipboard()
-        {
-            // ARRANGE
-            var message = "This is the message";
-            var exception = new Exception(message);
+        var viewModel = new ExceptionViewModel(exception, _applicationService.Object);
 
-            _applicationService.Setup(x => x.CopyToClipboard(exception.ToString()));
+        // ACT
+        viewModel.CopyCommand.Execute(null);
 
-            var viewModel = new ExceptionViewModel(exception, _applicationService.Object);
+        // ASSERT
+        _applicationService.Verify();
+    }
 
-            // ACT
-            viewModel.CopyCommand.Execute(null);
+    [Test]
+    public void exit_application()
+    {
+        // ARRANGE
+        _applicationService.Setup(x => x.Exit());
 
-            // ASSERT
-            _applicationService.Verify();
-        }
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-        [Test]
-        public void exit_application()
-        {
-            // ARRANGE
-            _applicationService.Setup(x => x.Exit());
+        // ACT
+        viewModel.ExitCommand.Execute(null);
 
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
+        // ASSERT
+        _applicationService.Verify();
+    }
 
-            // ACT
-            viewModel.ExitCommand.Execute(null);
+    [Test]
+    public void message_is_null_when_exception_is_null()
+    {
+        // ARRANGE
+        // ACT
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-            // ASSERT
-            _applicationService.Verify();
-        }
+        // ASSERT
+        Assert.That(viewModel.Message, Is.Null);
+    }
 
-        [Test]
-        public void message_is_null_when_exception_is_null()
-        {
-            // ARRANGE
-            // ACT
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
+    [Test]
+    public void message_is_populated_when_exception_is_not_null()
+    {
+        // ARRANGE
+        var message = "This is the message";
+        var exception = new Exception(message);
 
-            // ASSERT
-            Assert.That(viewModel.Message, Is.Null);
-        }
+        // ACT
+        var viewModel = new ExceptionViewModel(exception, _applicationService.Object);
 
-        [Test]
-        public void message_is_populated_when_exception_is_not_null()
-        {
-            // ARRANGE
-            var message = "This is the message";
-            var exception = new Exception(message);
+        // ASSERT
+        Assert.That(viewModel.Message, Is.EqualTo(message));
+    }
 
-            // ACT
-            var viewModel = new ExceptionViewModel(exception, _applicationService.Object);
+    [Test]
+    public void opens_log_folder()
+    {
+        // ARRANGE
+        _applicationService.SetupGet(x => x.LogFolder)
+            .Returns(@"c:\temp\log.txt");
+        _applicationService.Setup(x => x.OpenFolder(@"c:\temp\log.txt"));
 
-            // ASSERT
-            Assert.That(viewModel.Message, Is.EqualTo(message));
-        }
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-        [Test]
-        public void opens_log_folder()
-        {
-            // ARRANGE
-            _applicationService.SetupGet(x => x.LogFolder)
-                .Returns(@"c:\temp\log.txt");
-            _applicationService.Setup(x => x.OpenFolder(@"c:\temp\log.txt"));
+        // ACT
+        viewModel.OpenLogFolderCommand.Execute(null);
 
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
+        // ASSERT
+        _applicationService.Verify();
+    }
 
-            // ACT
-            viewModel.OpenLogFolderCommand.Execute(null);
+    [Test]
+    public void restart_application()
+    {
+        // ARRANGE
+        _applicationService.Setup(x => x.Exit());
 
-            // ASSERT
-            _applicationService.Verify();
-        }
+        var viewModel = new ExceptionViewModel(null, _applicationService.Object);
 
-        [Test]
-        public void restart_application()
-        {
-            // ARRANGE
-            _applicationService.Setup(x => x.Exit());
+        // ACT
+        viewModel.RestartCommand.Execute(null);
 
-            var viewModel = new ExceptionViewModel(null, _applicationService.Object);
-
-            // ACT
-            viewModel.RestartCommand.Execute(null);
-
-            // ASSERT
-            _applicationService.Verify();
-        }
+        // ASSERT
+        _applicationService.Verify();
     }
 }

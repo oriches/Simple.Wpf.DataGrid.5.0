@@ -7,90 +7,83 @@ using Newtonsoft.Json;
 using Simple.Wpf.DataGrid.Extensions;
 using Simple.Wpf.DataGrid.Models;
 
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public sealed class SettingsService : DisposableObject, ISettingsService
 {
-    public sealed class SettingsService : DisposableObject, ISettingsService
+    private readonly Subject<bool> _persist;
+    private readonly object _persistSync = new();
+
+    private readonly JsonSerializerSettings _serializerSettings = new()
     {
-        private readonly Subject<bool> _persist;
-        private readonly object _persistSync = new();
+        Formatting = Formatting.Indented,
+        TypeNameHandling = TypeNameHandling.All
+    };
 
-        private readonly JsonSerializerSettings _serializerSettings = new()
+    private readonly IDictionary<string, ISettings> _settings;
+
+    public SettingsService(ISchedulerService schedulerService)
+    {
+        using (Duration.Measure(Logger, "Constructor - " + GetType()
+                   .Name))
         {
-            Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.All
-        };
+            _persist = new Subject<bool>()
+                .DisposeWith(this);
 
-        private readonly IDictionary<string, ISettings> _settings;
+            _persist.ObserveOn(schedulerService.TaskPool)
+                .Synchronize(_persistSync)
+                .Subscribe(_ => Persist())
+                .DisposeWith(this);
 
-        public SettingsService(ISchedulerService schedulerService)
-        {
-            using (Duration.Measure(Logger, "Constructor - " + GetType()
-                       .Name))
-            {
-                _persist = new Subject<bool>()
-                    .DisposeWith(this);
+            _settings = new Dictionary<string, ISettings>();
 
-                _persist.ObserveOn(schedulerService.TaskPool)
-                    .Synchronize(_persistSync)
-                    .Subscribe(_ => Persist())
-                    .DisposeWith(this);
+            var serializedSettings = Properties.Settings.Default.GlobalSettings;
 
-                _settings = new Dictionary<string, ISettings>();
-
-                var serializedSettings = Properties.Settings.Default.GlobalSettings;
-
-                if (!string.IsNullOrEmpty(serializedSettings))
-                    JsonConvert.DeserializeObject<Dictionary<string, IEnumerable<Dtos.Setting>>>(
-                            serializedSettings, _serializerSettings)
-                        .ForEach(y => _settings.Add(y.Key, CreateSettings(y.Value)));
-            }
+            if (!string.IsNullOrEmpty(serializedSettings))
+                JsonConvert.DeserializeObject<Dictionary<string, IEnumerable<Dtos.Setting>>>(
+                        serializedSettings, _serializerSettings)
+                    .ForEach(y => _settings.Add(y.Key, CreateSettings(y.Value)));
         }
+    }
 
-        public ISettings CreateOrUpdate(string name)
+    public ISettings CreateOrUpdate(string name) => CreateOrUpdate(name, Enumerable.Empty<Setting>());
+
+    public ISettings CreateOrUpdate(string name, IEnumerable<Setting> values)
+    {
+        var settings = new Settings(values, _persist);
+        _settings[name] = settings;
+
+        _persist.OnNext(true);
+
+        return settings;
+    }
+
+    public bool TryGet(string name, out ISettings settings) => _settings.TryGetValue(name, out settings);
+
+    public void Persist()
+    {
+        var globalSettings = new Dictionary<string, IEnumerable<Dtos.Setting>>(_settings.Count);
+
+
+        globalSettings.AddRange(_settings.Select(x =>
         {
-            return CreateOrUpdate(name, Enumerable.Empty<Setting>());
-        }
-
-        public ISettings CreateOrUpdate(string name, IEnumerable<Setting> values)
-        {
-            var settings = new Settings(values, _persist);
-            _settings[name] = settings;
-
-            _persist.OnNext(true);
-
-            return settings;
-        }
-
-        public bool TryGet(string name, out ISettings settings)
-        {
-            return _settings.TryGetValue(name, out settings);
-        }
-
-        public void Persist()
-        {
-            var globalSettings = new Dictionary<string, IEnumerable<Dtos.Setting>>(_settings.Count);
-
-
-            globalSettings.AddRange(_settings.Select(x =>
-            {
-                var settings = x.Value.Select(z => new Dtos.Setting { Name = z.Name, Value = z.Value })
-                    .ToArray();
-
-                return new KeyValuePair<string, IEnumerable<Dtos.Setting>>(x.Key, settings);
-            }));
-
-            var serializedSettings = JsonConvert.SerializeObject(globalSettings, _serializerSettings);
-
-            Properties.Settings.Default.GlobalSettings = serializedSettings;
-            Properties.Settings.Default.Save();
-        }
-
-        private Settings CreateSettings(IEnumerable<Dtos.Setting> value)
-        {
-            var settings = value.Select(x => new Setting(x.Name, x.Value))
+            var settings = x.Value.Select(z => new Dtos.Setting { Name = z.Name, Value = z.Value })
                 .ToArray();
 
-            return new Settings(settings, _persist);
-        }
+            return new KeyValuePair<string, IEnumerable<Dtos.Setting>>(x.Key, settings);
+        }));
+
+        var serializedSettings = JsonConvert.SerializeObject(globalSettings, _serializerSettings);
+
+        Properties.Settings.Default.GlobalSettings = serializedSettings;
+        Properties.Settings.Default.Save();
+    }
+
+    private Settings CreateSettings(IEnumerable<Dtos.Setting> value)
+    {
+        var settings = value.Select(x => new Setting(x.Name, x.Value))
+            .ToArray();
+
+        return new Settings(settings, _persist);
     }
 }

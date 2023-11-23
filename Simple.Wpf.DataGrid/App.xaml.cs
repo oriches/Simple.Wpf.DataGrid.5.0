@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -21,216 +20,210 @@ using Simple.Wpf.DataGrid.ViewModels;
 using Simple.Wpf.DataGrid.Views.Views;
 using Duration = Simple.Wpf.DataGrid.Services.Duration;
 using ObservableExtensions = Simple.Wpf.DataGrid.Extensions.ObservableExtensions;
+// ReSharper disable UseObjectOrCollectionInitializer
 
-namespace Simple.Wpf.DataGrid
+namespace Simple.Wpf.DataGrid;
+
+public partial class App
 {
-    public partial class App
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    private readonly CompositeDisposable _disposable = new();
+
+    public App()
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private readonly CompositeDisposable _disposable;
-
-        public App()
-        {
 #if DEBUG
             LogHelper.ReconfigureLoggerToLevel(LogLevel.Debug);
 #endif
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            Current.DispatcherUnhandledException += DispatcherOnUnhandledException;
-            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+        Current.DispatcherUnhandledException += DispatcherOnUnhandledException;
+        TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
+    }
 
-            _disposable = new CompositeDisposable();
-        }
-
-        protected override void OnStartup(StartupEventArgs args)
+    protected override void OnStartup(StartupEventArgs args)
+    {
+        using (Duration.Measure(Logger, "OnStartup - " + GetType()
+                   .Name))
         {
-            using (Duration.Measure(Logger, "OnStartup - " + GetType()
-                       .Name))
-            {
-                Logger.Info("Starting");
+            Logger.Info("Starting");
 
-                // ReSharper disable once RedundantToStringCallForValueType
-                var dispatcherMessage =
-                    $"Dispatcher managed thread identifier = {Thread.CurrentThread.ManagedThreadId.ToString()}";
+            // ReSharper disable once RedundantToStringCallForValueType
+            var dispatcherMessage =
+                $"Dispatcher managed thread identifier = {Environment.CurrentManagedThreadId}";
 
-                Logger.Info(dispatcherMessage);
-                Debug.WriteLine(dispatcherMessage);
+            Logger.Info(dispatcherMessage);
+            Debug.WriteLine(dispatcherMessage);
 
-                Logger.Info($"WPF rendering capability (tier) = {(RenderCapability.Tier / 0x10000).ToString()}");
-                RenderCapability.TierChanged += (s, a) =>
-                    Logger.Info($"WPF rendering capability (tier) = {(RenderCapability.Tier / 0x10000).ToString()}");
+            Logger.Info($"WPF rendering capability (tier) = {(RenderCapability.Tier / 0x10000)}");
+            RenderCapability.TierChanged += (_, _) =>
+                Logger.Info($"WPF rendering capability (tier) = {(RenderCapability.Tier / 0x10000)}");
 
-                base.OnStartup(args);
+            base.OnStartup(args);
 
-                BootStrapper.Start();
+            BootStrapper.Start();
 
-                var schedulerService = BootStrapper.Resolve<ISchedulerService>();
-                var messageService = BootStrapper.Resolve<IMessageService>();
-                var gestureService = BootStrapper.Resolve<IGestureService>();
+            var schedulerService = BootStrapper.Resolve<ISchedulerService>();
+            var messageService = BootStrapper.Resolve<IMessageService>();
+            var gestureService = BootStrapper.Resolve<IGestureService>();
 
-                ObservableExtensions.GestureService = gestureService;
+            ObservableExtensions.GestureService = gestureService;
 
-                // Load the application settings asynchronously
-                LoadSettingsAsync(schedulerService)
-                    .Wait();
+            // Load the application settings asynchronously
+            LoadSettingsAsync(schedulerService)
+                .Wait();
 
-                var window = new MainWindow(messageService, schedulerService);
+            var window = new MainWindow(messageService, schedulerService);
 
-                // The window has to be created before the root visual - all to do with the idling service initialising correctly...
-                window.DataContext = BootStrapper.RootVisual;
+            // The window has to be created before the root visual - all to do with the idling service initialising correctly...
+            window.DataContext = BootStrapper.RootVisual;
 
-                window.Closed += HandleClosed;
-                Current.Exit += HandleExit;
+            window.Closed += HandleClosed;
+            Current.Exit += HandleExit;
 
-                // Let's go...
-                window.Show();
+            // Let's go...
+            window.Show();
 
 
-                if (Logger.IsInfoEnabled)
-                    // Monitoring heartbeat only when info level is enabled...
-                    ObserveHeartbeat(schedulerService)
-                        .DisposeWith(_disposable);
+            if (Logger.IsInfoEnabled)
+                // Monitoring heartbeat only when info level is enabled...
+                ObserveHeartbeat(schedulerService)
+                    .DisposeWith(_disposable);
 
 #if DEBUG
                 ObserveUiFreeze()
                     .DisposeWith(_disposable);
 #endif
-                ObserveCultureChanges()
-                    .DisposeWith(_disposable);
+            ObserveCultureChanges()
+                .DisposeWith(_disposable);
 
-                Logger.Info("Started");
+            Logger.Info("Started");
+        }
+    }
+
+    private void HandleClosed(object sender, EventArgs e)
+    {
+        _disposable.Dispose();
+        BootStrapper.Stop();
+    }
+
+    private static void HandleExit(object sender, ExitEventArgs e)
+    {
+        Logger.Info("Bye Bye!");
+        LogManager.Flush();
+    }
+
+    private static IDisposable ObserveCultureChanges() =>
+        CultureService.CultureChanged
+            .Subscribe(_ =>
+            {
+                Current.Windows
+                    .Cast<Window>()
+                    .ForEach(y => y.InvalidateVisual());
+            });
+
+    private static IDisposable ObserveHeartbeat(ISchedulerService schedulerService)
+    {
+        var diagnosticsService = BootStrapper.Resolve<IDiagnosticsService>();
+
+        return BootStrapper.Resolve<IHeartbeatService>()
+            .Listen
+            .SelectMany(_ => diagnosticsService.Memory.Take(1), (_, y) => y)
+            .SelectMany(_ => diagnosticsService.Cpu.Take(1), (x, y) => new Tuple<Memory, int>(x, y))
+            .Select(x => $"Heartbeat (Memory={x.Item1.WorkingSetPrivateAsString()}, CPU={x.Item2}%)")
+            .ObserveOn(schedulerService.Dispatcher)
+            .Subscribe(x =>
+            {
+                Debug.WriteLine(x);
+                Logger.Info(x);
+            });
+    }
+
+
+    private static IObservable<Unit> LoadSettingsAsync(ISchedulerService schedulerService) =>
+        Observable.Create<Unit>(x =>
+            {
+                BootStrapper.Resolve<ISettingsService>();
+
+                x.OnNext(Unit.Default);
+                x.OnCompleted();
+
+                return Disposable.Empty;
+            })
+            .SubscribeOn(schedulerService.TaskPool);
+
+    private static IDisposable ObserveUiFreeze()
+    {
+        var timer = new DispatcherTimer(DispatcherPriority.Normal)
+        {
+            Interval = Constants.UI.Diagnostics.UiFreezeTimer
+        };
+
+        var previous = DateTime.Now;
+        timer.Tick += (_, _) =>
+        {
+            var current = DateTime.Now;
+            var delta = current - previous;
+            previous = current;
+
+            if (delta > Constants.UI.Diagnostics.UiFreeze)
+            {
+                var message =
+                    $"UI Freeze = {delta.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)} ms";
+                Debug.WriteLine(message);
             }
-        }
+        };
 
-        private void HandleClosed(object sender, EventArgs e)
-        {
-            _disposable.Dispose();
-            BootStrapper.Stop();
-        }
+        timer.Start();
+        return Disposable.Create(() => timer.Stop());
+    }
 
-        private static void HandleExit(object sender, ExitEventArgs e)
-        {
-            Logger.Info("Bye Bye!");
-            LogManager.Flush();
-        }
+    private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+    {
+        Logger.Info("Unhandled app domain exception");
+        HandleException(args.ExceptionObject as Exception);
+    }
 
-        private static IDisposable ObserveCultureChanges()
-        {
-            return CultureService.CultureChanged
-                .Subscribe(x =>
-                {
-                    Current.Windows
-                        .Cast<Window>()
-                        .ForEach(y => y.InvalidateVisual());
-                });
-        }
+    private static void DispatcherOnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs args)
+    {
+        Logger.Info("Unhandled dispatcher thread exception");
+        args.Handled = true;
 
-        private static IDisposable ObserveHeartbeat(ISchedulerService schedulerService)
-        {
-            var diagnosticsService = BootStrapper.Resolve<IDiagnosticsService>();
+        HandleException(args.Exception);
+    }
 
-            return BootStrapper.Resolve<IHeartbeatService>()
-                .Listen
-                .SelectMany(x => diagnosticsService.Memory.Take(1), (x, y) => y)
-                .SelectMany(x => diagnosticsService.Cpu.Take(1), (x, y) => new Tuple<Memory, int>(x, y))
-                .Select(x => $"Heartbeat (Memory={x.Item1.WorkingSetPrivateAsString()}, CPU={x.Item2.ToString()}%)")
-                .ObserveOn(schedulerService.Dispatcher)
-                .Subscribe(x =>
-                {
-                    Debug.WriteLine(x);
-                    Logger.Info(x);
-                });
-        }
+    private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs args)
+    {
+        Logger.Info("Unhandled task exception");
+        args.SetObserved();
 
+        HandleException(args.Exception.GetBaseException());
+    }
 
-        private static IObservable<Unit> LoadSettingsAsync(ISchedulerService schedulerService)
-        {
-            return Observable.Create<Unit>(x =>
-                {
-                    BootStrapper.Resolve<ISettingsService>();
+    private static void HandleException(Exception exception)
+    {
+        Logger.Error(exception);
 
-                    x.OnNext(Unit.Default);
-                    x.OnCompleted();
-
-                    return Disposable.Empty;
-                })
-                .SubscribeOn(schedulerService.TaskPool);
-        }
-
-        private static IDisposable ObserveUiFreeze()
-        {
-            var timer = new DispatcherTimer(DispatcherPriority.Normal)
+        BootStrapper.Resolve<ISchedulerService>()
+            .Dispatcher
+            .Schedule(exception, (_, state) =>
             {
-                Interval = Constants.UI.Diagnostics.UiFreezeTimer
-            };
+                var messageService = BootStrapper.Resolve<IMessageService>();
 
-            var previous = DateTime.Now;
-            timer.Tick += (sender, args) =>
-            {
-                var current = DateTime.Now;
-                var delta = current - previous;
-                previous = current;
-
-                if (delta > Constants.UI.Diagnostics.UiFreeze)
+                var parameters = new Parameter[]
                 {
-                    var message =
-                        $"UI Freeze = {delta.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)} ms";
-                    Debug.WriteLine(message);
-                }
-            };
+                    new NamedParameter("exception", state)
+                };
 
-            timer.Start();
-            return Disposable.Create(() => timer.Stop());
-        }
+                var viewModel = BootStrapper.Resolve<IExceptionViewModel>(parameters);
 
-        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs args)
-        {
-            Logger.Info("Unhandled app domain exception");
-            HandleException(args.ExceptionObject as Exception);
-        }
+                Observable.Return(viewModel)
+                    .SelectMany(x => x.Closed, (x, _) => x)
+                    .Take(1)
+                    .Subscribe(x => x.Dispose());
 
-        private static void DispatcherOnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs args)
-        {
-            Logger.Info("Unhandled dispatcher thread exception");
-            args.Handled = true;
+                messageService.Post(Constants.UI.ExceptionTitle, viewModel);
 
-            HandleException(args.Exception);
-        }
-
-        private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs args)
-        {
-            Logger.Info("Unhandled task exception");
-            args.SetObserved();
-
-            HandleException(args.Exception.GetBaseException());
-        }
-
-        private static void HandleException(Exception exception)
-        {
-            Logger.Error(exception);
-
-            BootStrapper.Resolve<ISchedulerService>()
-                .Dispatcher
-                .Schedule(exception, (scheduler, state) =>
-                {
-                    var messageService = BootStrapper.Resolve<IMessageService>();
-
-                    var parameters = new Parameter[]
-                    {
-                        new NamedParameter("exception", state)
-                    };
-
-                    var viewModel = BootStrapper.Resolve<IExceptionViewModel>(parameters);
-
-                    Observable.Return(viewModel)
-                        .SelectMany(x => x.Closed, (x, y) => x)
-                        .Take(1)
-                        .Subscribe(x => x.Dispose());
-
-                    messageService.Post(Constants.UI.ExceptionTitle, viewModel);
-
-                    return Disposable.Empty;
-                });
-        }
+                return Disposable.Empty;
+            });
     }
 }

@@ -4,99 +4,89 @@ using System.Collections.Generic;
 using System.Linq;
 using Simple.Wpf.DataGrid.Models;
 
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public sealed class Settings : ISettings
 {
-    public sealed class Settings : ISettings
+    private readonly IObserver<bool> _persist;
+    private readonly List<Setting> _settings;
+
+    public Settings(IEnumerable<Setting> settings, IObserver<bool> persist)
     {
-        private readonly IObserver<bool> _persist;
-        private readonly List<Setting> _settings;
+        _persist = persist;
+        _settings = settings.ToList();
+    }
 
-        public Settings(IEnumerable<Setting> settings, IObserver<bool> persist)
+    public object this[string name]
+    {
+        get
         {
-            _persist = persist;
-            _settings = settings.ToList();
+            var setting = FindFirst(name);
+            return setting?.Value;
         }
 
-        public object this[string name]
+        set
         {
-            get
+            var setting = FindFirst(name);
+            if (setting != null)
             {
-                var setting = FindFirst(name);
-                return setting?.Value;
+                var index = _settings.IndexOf(setting);
+                _settings[index] = new Setting(name, value);
+            }
+            else
+            {
+                _settings.Add(new Setting(name, value));
             }
 
-            set
-            {
-                var setting = FindFirst(name);
-                if (setting != null)
-                {
-                    var index = _settings.IndexOf(setting);
-                    _settings[index] = new Setting(name, value);
-                }
-                else
-                {
-                    _settings.Add(new Setting(name, value));
-                }
+            _persist.OnNext(true);
+        }
+    }
 
-                _persist.OnNext(true);
-            }
+    IEnumerator<Setting> IEnumerable<Setting>.GetEnumerator() => new SettingsEnumerator(_settings);
+
+    IEnumerator IEnumerable.GetEnumerator() => new SettingsEnumerator(_settings);
+
+    private Setting FindFirst(string name)
+    {
+        // ReSharper disable once ForCanBeConvertedToForeach
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        for (var i = 0; i < _settings.Count; i++)
+        {
+            var setting = _settings[i];
+            if (setting.Name == name) return setting;
         }
 
-        IEnumerator<Setting> IEnumerable<Setting>.GetEnumerator()
+        return null;
+    }
+
+    internal sealed class SettingsEnumerator : IEnumerator<Setting>
+    {
+        private int _index;
+        private List<Setting> _settings;
+
+        public SettingsEnumerator(List<Setting> settings)
         {
-            return new SettingsEnumerator(_settings);
+            _settings = settings;
+            Reset();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public void Reset() => _index = -1;
+
+        object IEnumerator.Current => ((IEnumerator<Setting>)this).Current;
+
+        Setting IEnumerator<Setting>.Current => _settings[_index];
+
+        public bool MoveNext()
         {
-            return new SettingsEnumerator(_settings);
+            ++_index;
+
+            return _index < _settings.Count;
         }
 
-        private Setting FindFirst(string name)
+        public void Dispose()
         {
-            // ReSharper disable once ForCanBeConvertedToForeach
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            for (var i = 0; i < _settings.Count; i++)
-            {
-                var setting = _settings[i];
-                if (setting.Name == name) return setting;
-            }
-
-            return null;
-        }
-
-        internal sealed class SettingsEnumerator : IEnumerator<Setting>
-        {
-            private int _index;
-            private List<Setting> _settings;
-
-            public SettingsEnumerator(List<Setting> settings)
-            {
-                _settings = settings;
-                Reset();
-            }
-
-            public void Reset()
-            {
-                _index = -1;
-            }
-
-            object IEnumerator.Current => ((IEnumerator<Setting>)this).Current;
-
-            Setting IEnumerator<Setting>.Current => _settings[_index];
-
-            public bool MoveNext()
-            {
-                ++_index;
-
-                return _index < _settings.Count;
-            }
-
-            public void Dispose()
-            {
-                _settings = null;
-                _index = -1;
-            }
+            _settings = null;
+            _index = -1;
         }
     }
 }

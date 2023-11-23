@@ -1,6 +1,5 @@
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public interface IService
 {
-    public interface IService
-    {
-    }
 }

@@ -1,11 +1,8 @@
-namespace Simple.Wpf.DataGrid.Helpers
+namespace Simple.Wpf.DataGrid.Helpers;
+
+public static class ColumnHelper
 {
-    public static class ColumnHelper
-    {
-        public static string DisplayName(string columnName)
-        {
-            return columnName.Replace(Constants.UI.Grids.ColumnNameSeparator,
-                Constants.UI.Grids.ColumnNameDisplaySeparator);
-        }
-    }
+    public static string DisplayName(string columnName) =>
+        columnName.Replace(Constants.UI.Grids.ColumnNameSeparator,
+            Constants.UI.Grids.ColumnNameDisplaySeparator);
 }

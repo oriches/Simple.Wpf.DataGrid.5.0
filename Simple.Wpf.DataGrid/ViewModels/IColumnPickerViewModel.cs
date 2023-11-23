@@ -1,6 +1,5 @@
-namespace Simple.Wpf.DataGrid.ViewModels
+namespace Simple.Wpf.DataGrid.ViewModels;
+
+public interface IColumnPickerViewModel : ITransientViewModel
 {
-    public interface IColumnPickerViewModel : ITransientViewModel
-    {
-    }
 }

@@ -1,10 +1,6 @@
-﻿namespace Simple.Wpf.DataGrid.Views.Controls
+﻿namespace Simple.Wpf.DataGrid.Views.Controls;
+
+public partial class IntegerValueControl : NumberValueControl
 {
-    public partial class IntegerValueControl : NumberValueControl
-    {
-        public IntegerValueControl() : base(typeof(int), x => (int)x > 0)
-        {
-            InitializeComponent();
-        }
-    }
+    public IntegerValueControl() : base(typeof(int), x => (int)x > 0) => InitializeComponent();
 }

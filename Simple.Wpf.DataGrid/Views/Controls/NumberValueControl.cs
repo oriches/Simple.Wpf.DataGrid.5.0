@@ -6,172 +6,161 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Simple.Wpf.DataGrid.Extensions;
 
-namespace Simple.Wpf.DataGrid.Views.Controls
+namespace Simple.Wpf.DataGrid.Views.Controls;
+
+public abstract class NumberValueControl : UserControl
 {
-    public abstract class NumberValueControl : UserControl
+    private readonly Func<object, bool> _isGreaterThanZero;
+    private readonly Type _type;
+
+    private bool _mouseDown;
+    private ScrollViewer _scrollViewer;
+    private bool _scrollWheel;
+    private DispatcherTimer _scrollWheelTimer;
+
+    protected NumberValueControl(Type type, Func<object, bool> isGreaterThanZero)
     {
-        private readonly Func<object, bool> _isGreaterThanZero;
-        private readonly Type _type;
+        _type = type;
+        _isGreaterThanZero = isGreaterThanZero;
 
-        private bool _mouseDown;
-        private ScrollViewer _scrollViewer;
-        private bool _scrollWheel;
-        private DispatcherTimer _scrollWheelTimer;
+        Loaded += HandleLoaded;
+        Unloaded += HandleUnloaded;
 
-        protected NumberValueControl(Type type, Func<object, bool> isGreaterThanZero)
+        DataContextChanged += HandleDataContextChanged;
+    }
+
+    private void HandleLoaded(object sender, RoutedEventArgs args)
+    {
+        _scrollViewer = this.FindAncestor<ScrollViewer>();
+        if (_scrollViewer != null)
         {
-            _type = type;
-            _isGreaterThanZero = isGreaterThanZero;
+            _scrollViewer.PreviewMouseDown += HandlePreviewMouseDown;
+            _scrollViewer.PreviewMouseUp += HandlePreviewMouseUp;
 
-            Loaded += HandleLoaded;
-            Unloaded += HandleUnloaded;
+            _scrollWheelTimer = new DispatcherTimer { Interval = Constants.UI.Grids.ScrollingThrottle };
+            _scrollWheelTimer.Tick += HandleScrollWheelTimerTick;
 
-            DataContextChanged += HandleDataContextChanged;
+            _scrollViewer.PreviewMouseWheel += HandlePreviewMouseWheel;
         }
+    }
 
-        private void HandleLoaded(object sender, RoutedEventArgs args)
-        {
-            _scrollViewer = this.FindAncestor<ScrollViewer>();
-            if (_scrollViewer != null)
-            {
-                _scrollViewer.PreviewMouseDown += HandlePreviewMouseDown;
-                _scrollViewer.PreviewMouseUp += HandlePreviewMouseUp;
+    private void HandlePreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (_scrollWheelTimer.IsEnabled)
+            _scrollWheelTimer.Stop();
+        else
+            _scrollWheel = true;
 
-                _scrollWheelTimer = new DispatcherTimer { Interval = Constants.UI.Grids.ScrollingThrottle };
-                _scrollWheelTimer.Tick += HandleScrollWheelTimerTick;
+        _scrollWheelTimer.Start();
+    }
 
-                _scrollViewer.PreviewMouseWheel += HandlePreviewMouseWheel;
-            }
-        }
+    private void HandleScrollWheelTimerTick(object sender, EventArgs e)
+    {
+        _scrollWheelTimer.Stop();
 
-        private void HandlePreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (_scrollWheelTimer.IsEnabled)
-                _scrollWheelTimer.Stop();
-            else
-                _scrollWheel = true;
+        _scrollWheel = false;
+    }
 
-            _scrollWheelTimer.Start();
-        }
-
-        private void HandleScrollWheelTimerTick(object sender, EventArgs e)
+    private void HandleUnloaded(object sender, RoutedEventArgs e)
+    {
+        if (_scrollWheelTimer != null)
         {
             _scrollWheelTimer.Stop();
+            _scrollWheelTimer.Tick -= HandleScrollWheelTimerTick;
+
+            _scrollWheelTimer = null;
 
             _scrollWheel = false;
         }
 
-        private void HandleUnloaded(object sender, RoutedEventArgs e)
+        if (_scrollViewer != null)
         {
-            if (_scrollWheelTimer != null)
-            {
-                _scrollWheelTimer.Stop();
-                _scrollWheelTimer.Tick -= HandleScrollWheelTimerTick;
-
-                _scrollWheelTimer = null;
-
-                _scrollWheel = false;
-            }
-
-            if (_scrollViewer != null)
-            {
-                _scrollViewer.PreviewMouseDown -= HandlePreviewMouseDown;
-                _scrollViewer.PreviewMouseUp -= HandlePreviewMouseUp;
-                _scrollViewer.PreviewMouseWheel -= HandlePreviewMouseWheel;
-            }
-        }
-
-        private void HandlePreviewMouseUp(object sender, MouseButtonEventArgs args)
-        {
-            _mouseDown = false;
-        }
-
-        private void HandlePreviewMouseDown(object sender, MouseButtonEventArgs args)
-        {
-            _mouseDown = true;
-        }
-
-        private void HandleDataContextChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            VisualStateManager.GoToState(this, Constants.UI.Grids.Transitions.Default, true);
-
-            // do nothing when...
-            // not visible or
-            // no previous value or
-            // mouse is down or
-            // scrolling or
-            // new value type is wrong...
-
-            if (!IsVisible ||
-                args.OldValue == null ||
-                _mouseDown ||
-                _scrollWheel ||
-                !(args.NewValue.GetType() == _type))
-                return;
-
-            var transitioned = VisualStateManager.GoToState(this,
-                _isGreaterThanZero(args.NewValue)
-                    ? Constants.UI.Grids.Transitions.NewPositive
-                    : Constants.UI.Grids.Transitions.NewNegative,
-                true);
-
-            if (!transitioned) throw new Exception("Failed to transition...");
+            _scrollViewer.PreviewMouseDown -= HandlePreviewMouseDown;
+            _scrollViewer.PreviewMouseUp -= HandlePreviewMouseUp;
+            _scrollViewer.PreviewMouseWheel -= HandlePreviewMouseWheel;
         }
     }
 
-    public sealed class DataGridTemplateColumnEx : DataGridTemplateColumn
+    private void HandlePreviewMouseUp(object sender, MouseButtonEventArgs args) => _mouseDown = false;
+
+    private void HandlePreviewMouseDown(object sender, MouseButtonEventArgs args) => _mouseDown = true;
+
+    private void HandleDataContextChanged(object sender, DependencyPropertyChangedEventArgs args)
     {
-        protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
+        VisualStateManager.GoToState(this, Constants.UI.Grids.Transitions.Default, true);
+
+        // do nothing when...
+        // not visible or
+        // no previous value or
+        // mouse is down or
+        // scrolling or
+        // new value type is wrong...
+
+        if (!IsVisible ||
+            args.OldValue == null ||
+            _mouseDown ||
+            _scrollWheel ||
+            !(args.NewValue.GetType() == _type))
+            return;
+
+        var transitioned = VisualStateManager.GoToState(this,
+            _isGreaterThanZero(args.NewValue)
+                ? Constants.UI.Grids.Transitions.NewPositive
+                : Constants.UI.Grids.Transitions.NewNegative,
+            true);
+
+        if (!transitioned) throw new Exception("Failed to transition...");
+    }
+}
+
+public sealed class DataGridTemplateColumnEx : DataGridTemplateColumn
+{
+    protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem) =>
+        LoadTemplateContent(false);
+
+    protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem) =>
+        LoadTemplateContent(true);
+
+    private void ChooseCellTemplateAndSelector(bool isEditing, out DataTemplate template,
+        out DataTemplateSelector templateSelector)
+    {
+        template = null;
+        templateSelector = null;
+
+        if (isEditing)
         {
-            return LoadTemplateContent(false);
+            template = CellEditingTemplate;
+            templateSelector = CellEditingTemplateSelector;
         }
 
-        protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem)
+        if (template == null && templateSelector == null)
         {
-            return LoadTemplateContent(true);
+            template = CellTemplate;
+            templateSelector = CellTemplateSelector;
         }
+    }
 
-        private void ChooseCellTemplateAndSelector(bool isEditing, out DataTemplate template,
-            out DataTemplateSelector templateSelector)
+    private FrameworkElement LoadTemplateContent(bool isEditing)
+    {
+        ChooseCellTemplateAndSelector(isEditing, out var template, out var templateSelector);
+        if (template != null || templateSelector != null)
         {
-            template = null;
-            templateSelector = null;
-
-            if (isEditing)
+            var contentPresenter = new ContentPresenter
             {
-                template = CellEditingTemplate;
-                templateSelector = CellEditingTemplateSelector;
-            }
+                Name = "NumberValueContentPresenter"
+            };
 
-            if (template == null && templateSelector == null)
+            var binding = new Binding
             {
-                template = CellTemplate;
-                templateSelector = CellTemplateSelector;
-            }
+                FallbackValue = string.Empty, IsAsync = true, TargetNullValue = string.Empty
+            };
+
+            BindingOperations.SetBinding(contentPresenter, ContentPresenter.ContentProperty, binding);
+            contentPresenter.ContentTemplate = template;
+            contentPresenter.ContentTemplateSelector = templateSelector;
+            return contentPresenter;
         }
 
-        private FrameworkElement LoadTemplateContent(bool isEditing)
-        {
-            ChooseCellTemplateAndSelector(isEditing, out var template, out var templateSelector);
-            if (template != null || templateSelector != null)
-            {
-                var contentPresenter = new ContentPresenter
-                {
-                    Name = "NumberValueContentPresenter"
-                };
-
-                var binding = new Binding
-                {
-                    FallbackValue = string.Empty, IsAsync = true, TargetNullValue = string.Empty
-                };
-
-                BindingOperations.SetBinding(contentPresenter, ContentPresenter.ContentProperty, binding);
-                contentPresenter.ContentTemplate = template;
-                contentPresenter.ContentTemplateSelector = templateSelector;
-                return contentPresenter;
-            }
-
-            return null;
-        }
+        return null;
     }
 }

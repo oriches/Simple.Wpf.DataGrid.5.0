@@ -6,73 +6,66 @@ using NUnit.Framework;
 using Simple.Wpf.DataGrid.Helpers;
 using Simple.Wpf.DataGrid.Services;
 
-namespace Simple.Wpf.DataGrid.Tests.ViewModels
+namespace Simple.Wpf.DataGrid.Tests.ViewModels;
+
+[TestFixture]
+public class DurationFixtures
 {
-    [TestFixture]
-    public class DurationFixtures
+    [SetUp]
+    public void SetUp() => DurationMutex.WaitOne();
+
+    [TearDown]
+    public void TearDown() => DurationMutex.ReleaseMutex();
+
+    // Unable to mock out Logger class successfully because method are not marked as virtual,
+    // This means have manipulate a real instance of the NLog which involves making test synchronous to make
+    // they don't interfere with each other or I could push the logger behind an interface...
+    //
+    // Why not push behind an interface? - sick of to many interfaces in projects, and hate the idea of just creating it for testing purposes...
+    //
+    private static readonly Mutex DurationMutex = new(false, "Simple.Wpf.Datagrid.Tests.DurationFixtures");
+
+    [Test]
+    public void does_not_log_duration_when_debug_log_level_is_disabled()
     {
-        [SetUp]
-        public void SetUp()
+        // ARRANGE
+        LogHelper.ReconfigureLoggerToLevel(LogLevel.Info);
+        var logger = LogManager.GetCurrentClassLogger();
+        var memoryTarget = (LimitedMemoryTarget)LogManager.Configuration.FindTargetByName("memory");
+
+        var message = $"Message 1 - {Guid.NewGuid()}";
+
+        // ACT
+        using (Duration.Measure(logger, message))
         {
-            DurationMutex.WaitOne();
+            Thread.Sleep(100);
         }
 
-        [TearDown]
-        public void TearDown()
+        LogManager.Flush();
+
+        // ASSERT
+        Assert.That(memoryTarget.Logs.Count(x => x.Contains(message)) == 1, Is.False);
+    }
+
+    [Test]
+    public void logs_duration_when_debug_level_is_enabled()
+    {
+        // ARRANGE
+        LogHelper.ReconfigureLoggerToLevel(LogLevel.Debug);
+        var logger = LogManager.GetCurrentClassLogger();
+        var memoryTarget = (LimitedMemoryTarget)LogManager.Configuration.FindTargetByName("memory");
+
+        var message = $"Message 1 - {Guid.NewGuid()}";
+
+        // ACT
+        using (Duration.Measure(logger, message))
         {
-            DurationMutex.ReleaseMutex();
+            Thread.Sleep(100);
         }
 
-        // Unable to mock out Logger class successfully because method are not marked as virtual,
-        // This means have manipulate a real instance of the NLog which involves making test synchronous to make
-        // they don't interfere with each other or I could push the logger behind an interface...
-        //
-        // Why not push behind an interface? - sick of to many interfaces in projects, and hate the idea of just creating it for testing purposes...
-        //
-        private static readonly Mutex DurationMutex = new(false, "Simple.Wpf.Datagrid.Tests.DurationFixtures");
+        LogManager.Flush();
 
-        [Test]
-        public void does_not_log_duration_when_debug_log_level_is_disabled()
-        {
-            // ARRANGE
-            LogHelper.ReconfigureLoggerToLevel(LogLevel.Info);
-            var logger = LogManager.GetCurrentClassLogger();
-            var memoryTarget = (LimitedMemoryTarget)LogManager.Configuration.FindTargetByName("memory");
-
-            var message = $"Message 1 - {Guid.NewGuid()}";
-
-            // ACT
-            using (Duration.Measure(logger, message))
-            {
-                Thread.Sleep(100);
-            }
-
-            LogManager.Flush();
-
-            // ASSERT
-            Assert.That(memoryTarget.Logs.Count(x => x.Contains(message)) == 1, Is.False);
-        }
-
-        [Test]
-        public void logs_duration_when_debug_level_is_enabled()
-        {
-            // ARRANGE
-            LogHelper.ReconfigureLoggerToLevel(LogLevel.Debug);
-            var logger = LogManager.GetCurrentClassLogger();
-            var memoryTarget = (LimitedMemoryTarget)LogManager.Configuration.FindTargetByName("memory");
-
-            var message = $"Message 1 - {Guid.NewGuid()}";
-
-            // ACT
-            using (Duration.Measure(logger, message))
-            {
-                Thread.Sleep(100);
-            }
-
-            LogManager.Flush();
-
-            // ASSERT
-            Assert.That(memoryTarget.Logs.Count(x => x.Contains(message)) == 1, Is.True);
-        }
+        // ASSERT
+        Assert.That(memoryTarget.Logs.Count(x => x.Contains(message)) == 1, Is.True);
     }
 }

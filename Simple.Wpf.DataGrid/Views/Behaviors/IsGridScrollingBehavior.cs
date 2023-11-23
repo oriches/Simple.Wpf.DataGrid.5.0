@@ -5,60 +5,59 @@ using System.Windows.Threading;
 using Microsoft.Xaml.Behaviors;
 using Simple.Wpf.DataGrid.Extensions;
 
-namespace Simple.Wpf.DataGrid.Views.Behaviors
+namespace Simple.Wpf.DataGrid.Views.Behaviors;
+
+public sealed class IsGridScrollingBehavior : Behavior<System.Windows.Controls.DataGrid>
 {
-    public sealed class IsGridScrollingBehavior : Behavior<System.Windows.Controls.DataGrid>
+    public static readonly DependencyProperty IsScrollingProperty = DependencyProperty.Register("IsScrolling",
+        typeof(bool),
+        typeof(IsGridScrollingBehavior),
+        new PropertyMetadata(default(bool)));
+
+    private DispatcherTimer _timer;
+
+    public bool IsScrolling
     {
-        public static readonly DependencyProperty IsScrollingProperty = DependencyProperty.Register("IsScrolling",
-            typeof(bool),
-            typeof(IsGridScrollingBehavior),
-            new PropertyMetadata(default(bool)));
+        get => (bool)GetValue(IsScrollingProperty);
+        set => SetValue(IsScrollingProperty, value);
+    }
 
-        private DispatcherTimer _timer;
+    protected override void OnAttached()
+    {
+        base.OnAttached();
 
-        public bool IsScrolling
-        {
-            get => (bool)GetValue(IsScrollingProperty);
-            set => SetValue(IsScrollingProperty, value);
-        }
+        AssociatedObject.Loaded += HandleLoaded;
+        AssociatedObject.Unloaded += HandleUnloaded;
+    }
 
-        protected override void OnAttached()
-        {
-            base.OnAttached();
+    private void HandleUnloaded(object sender, RoutedEventArgs e)
+    {
+        _timer.Stop();
+        _timer.Tick -= HandleTimerTick;
+    }
 
-            AssociatedObject.Loaded += HandleLoaded;
-            AssociatedObject.Unloaded += HandleUnloaded;
-        }
+    private void HandleLoaded(object sender, RoutedEventArgs routedEventArgs)
+    {
+        _timer = new DispatcherTimer { Interval = Constants.UI.Grids.ScrollingThrottle };
+        _timer.Tick += HandleTimerTick;
 
-        private void HandleUnloaded(object sender, RoutedEventArgs e)
-        {
+        var scrollViewer = AssociatedObject.FindDescendant<ScrollViewer>();
+        if (scrollViewer != null) scrollViewer.ScrollChanged += HandleScrollChanged;
+    }
+
+    private void HandleScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (_timer.IsEnabled)
             _timer.Stop();
-            _timer.Tick -= HandleTimerTick;
-        }
+        else
+            IsScrolling = true;
 
-        private void HandleLoaded(object sender, RoutedEventArgs routedEventArgs)
-        {
-            _timer = new DispatcherTimer { Interval = Constants.UI.Grids.ScrollingThrottle };
-            _timer.Tick += HandleTimerTick;
+        _timer.Start();
+    }
 
-            var scrollViewer = AssociatedObject.FindDescendant<ScrollViewer>();
-            if (scrollViewer != null) scrollViewer.ScrollChanged += HandleScrollChanged;
-        }
-
-        private void HandleScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (_timer.IsEnabled)
-                _timer.Stop();
-            else
-                IsScrolling = true;
-
-            _timer.Start();
-        }
-
-        private void HandleTimerTick(object sender, EventArgs e)
-        {
-            _timer.Stop();
-            IsScrolling = false;
-        }
+    private void HandleTimerTick(object sender, EventArgs e)
+    {
+        _timer.Stop();
+        IsScrolling = false;
     }
 }

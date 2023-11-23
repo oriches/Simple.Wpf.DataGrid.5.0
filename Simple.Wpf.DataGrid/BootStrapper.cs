@@ -7,79 +7,75 @@ using Simple.Wpf.DataGrid.Services;
 using Simple.Wpf.DataGrid.Strategies;
 using Simple.Wpf.DataGrid.ViewModels;
 
-namespace Simple.Wpf.DataGrid
+namespace Simple.Wpf.DataGrid;
+
+public static class BootStrapper
 {
-    public static class BootStrapper
+    private static ILifetimeScope _rootScope;
+    private static IChromeViewModel _chromeViewModel;
+
+    public static IViewModel RootVisual
     {
-        private static ILifetimeScope _rootScope;
-        private static IChromeViewModel _chromeViewModel;
-
-        public static IViewModel RootVisual
+        get
         {
-            get
+            if (_rootScope == null) Start();
+
+            _chromeViewModel = _rootScope.Resolve<IChromeViewModel>();
+            return _chromeViewModel;
+        }
+    }
+
+    public static void Start()
+    {
+        if (_rootScope != null) return;
+
+        var builder = new ContainerBuilder();
+        var assemblies = new[] { Assembly.GetExecutingAssembly() };
+
+        builder.RegisterAssemblyTypes(assemblies)
+            .Where(t => typeof(IService).IsAssignableFrom(t))
+            .SingleInstance()
+            .AsImplementedInterfaces();
+
+        builder.RegisterAssemblyTypes(assemblies)
+            .Where(t => typeof(IStrategy).IsAssignableFrom(t))
+            .AsImplementedInterfaces();
+
+        builder.RegisterAssemblyTypes(assemblies)
+            .Where(t => typeof(IViewModel).IsAssignableFrom(t) && !typeof(ITransientViewModel).IsAssignableFrom(t))
+            .AsImplementedInterfaces();
+
+        // several view model instances are transitory and created on the fly, if these are tracked by the container then they
+        // won't be disposed of in a timely manner
+
+        builder.RegisterAssemblyTypes(assemblies)
+            .Where(t => typeof(IViewModel).IsAssignableFrom(t))
+            .Where(t =>
             {
-                if (_rootScope == null) Start();
+                var isAssignable = typeof(ITransientViewModel).IsAssignableFrom(t);
+                if (isAssignable) Debug.WriteLine("Transient view model - " + t.Name);
 
-                _chromeViewModel = _rootScope.Resolve<IChromeViewModel>();
-                return _chromeViewModel;
-            }
-        }
+                return isAssignable;
+            })
+            .AsImplementedInterfaces()
+            .ExternallyOwned();
 
-        public static void Start()
-        {
-            if (_rootScope != null) return;
+        _rootScope = builder.Build();
+    }
 
-            var builder = new ContainerBuilder();
-            var assemblies = new[] { Assembly.GetExecutingAssembly() };
+    public static void Stop() => _rootScope.Dispose();
 
-            builder.RegisterAssemblyTypes(assemblies)
-                .Where(t => typeof(IService).IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
+    public static T Resolve<T>()
+    {
+        if (_rootScope == null) throw new Exception("Bootstrapper hasn't been started!");
 
-            builder.RegisterAssemblyTypes(assemblies)
-                .Where(t => typeof(IStrategy).IsAssignableFrom(t))
-                .AsImplementedInterfaces();
+        return _rootScope.Resolve<T>(new Parameter[0]);
+    }
 
-            builder.RegisterAssemblyTypes(assemblies)
-                .Where(t => typeof(IViewModel).IsAssignableFrom(t) && !typeof(ITransientViewModel).IsAssignableFrom(t))
-                .AsImplementedInterfaces();
+    public static T Resolve<T>(Parameter[] parameters)
+    {
+        if (_rootScope == null) throw new Exception("Bootstrapper hasn't been started!");
 
-            // several view model instances are transitory and created on the fly, if these are tracked by the container then they
-            // won't be disposed of in a timely manner
-
-            builder.RegisterAssemblyTypes(assemblies)
-                .Where(t => typeof(IViewModel).IsAssignableFrom(t))
-                .Where(t =>
-                {
-                    var isAssignable = typeof(ITransientViewModel).IsAssignableFrom(t);
-                    if (isAssignable) Debug.WriteLine("Transient view model - " + t.Name);
-
-                    return isAssignable;
-                })
-                .AsImplementedInterfaces()
-                .ExternallyOwned();
-
-            _rootScope = builder.Build();
-        }
-
-        public static void Stop()
-        {
-            _rootScope.Dispose();
-        }
-
-        public static T Resolve<T>()
-        {
-            if (_rootScope == null) throw new Exception("Bootstrapper hasn't been started!");
-
-            return _rootScope.Resolve<T>(new Parameter[0]);
-        }
-
-        public static T Resolve<T>(Parameter[] parameters)
-        {
-            if (_rootScope == null) throw new Exception("Bootstrapper hasn't been started!");
-
-            return _rootScope.Resolve<T>(parameters);
-        }
+        return _rootScope.Resolve<T>(parameters);
     }
 }

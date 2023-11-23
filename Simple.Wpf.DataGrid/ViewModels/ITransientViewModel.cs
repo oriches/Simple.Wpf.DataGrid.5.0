@@ -1,6 +1,5 @@
-namespace Simple.Wpf.DataGrid.ViewModels
+namespace Simple.Wpf.DataGrid.ViewModels;
+
+public interface ITransientViewModel : IViewModel
 {
-    public interface ITransientViewModel : IViewModel
-    {
-    }
 }

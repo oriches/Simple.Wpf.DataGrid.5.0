@@ -1,7 +1,6 @@
-namespace Simple.Wpf.DataGrid.Models
+namespace Simple.Wpf.DataGrid.Models;
+
+public interface ICloneable<out T>
 {
-    public interface ICloneable<out T>
-    {
-        T Clone();
-    }
+    T Clone();
 }

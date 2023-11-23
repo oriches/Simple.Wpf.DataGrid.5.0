@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Simple.Wpf.DataGrid.Services
+namespace Simple.Wpf.DataGrid.Services;
+
+public sealed class DateTimeService : IDateTimeService
 {
-    public sealed class DateTimeService : IDateTimeService
-    {
-        public DateTimeOffset Now => DateTimeOffset.Now;
-    }
+    public DateTimeOffset Now => DateTimeOffset.Now;
 }
